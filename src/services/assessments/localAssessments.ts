@@ -4,7 +4,9 @@ import type { CustomerContextFields } from '../../domain/customerContext';
 const STORAGE_KEY = 'aira.assessments';
 
 export interface LocalAssessmentDraftFields {
+  name?: string;
   owner: string;
+  riskOwner?: string;
   companyName: string;
   domain: 'ai' | 'who';
   customerContext?: CustomerContextFields;
@@ -34,7 +36,8 @@ function isCustomerContextFields(value: unknown): value is CustomerContextFields
     (fn === null || typeof fn === 'string') &&
     (fm === null || typeof fm === 'string') &&
     typeof value.websiteUrl === 'string' &&
-    typeof value.emailTitle === 'string'
+    typeof value.emailTitle === 'string' &&
+    (value.freeformText === undefined || typeof value.freeformText === 'string')
   );
 }
 
@@ -53,7 +56,9 @@ function isLocalAssessmentRecord(value: unknown): value is LocalAssessmentRecord
       v.workflowStatus === 'approved' ||
       v.workflowStatus === 'archived') &&
     !!draft &&
+    (draft.name === undefined || typeof draft.name === 'string') &&
     typeof draft.owner === 'string' &&
+    (draft.riskOwner === undefined || typeof draft.riskOwner === 'string') &&
     typeof draft.companyName === 'string' &&
     (draft.domain === 'ai' || draft.domain === 'who') &&
     (draft.customerContext === undefined || isCustomerContextFields(draft.customerContext))

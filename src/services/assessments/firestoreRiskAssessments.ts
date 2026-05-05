@@ -5,7 +5,9 @@ import { FIRESTORE_COLLECTION_RISK_ASSESSMENTS } from '../../constants/firestore
 import { getFirebase, isFirebaseConfigured } from '../firebase';
 
 export interface RiskAssessmentWrite {
+  name: string;
   owner: string;
+  riskOwner?: string;
   companyName: string;
   domainId?: string;
   domainName?: string;
@@ -13,7 +15,9 @@ export interface RiskAssessmentWrite {
 
 export interface RiskAssessmentRead {
   id: string;
+  name?: string;
   owner: string;
+  riskOwner?: string;
   companyName: string;
   domainId?: string;
   domainName?: string;
@@ -37,11 +41,15 @@ export async function getRiskAssessment(id: string): Promise<RiskAssessmentRead 
   const owner = data.owner;
   const companyName = data.companyName;
   if (typeof owner !== 'string' || typeof companyName !== 'string') return null;
+  const name = typeof data.name === 'string' ? data.name : undefined;
+  const riskOwner = typeof data.riskOwner === 'string' ? data.riskOwner : undefined;
   const customerContext = parseCustomerContextFromDoc(data);
 
   return {
     id: snap.id,
+    ...(name !== undefined ? { name } : {}),
     owner,
+    ...(riskOwner !== undefined ? { riskOwner } : {}),
     companyName,
     ...(typeof data.domainId === 'string' ? { domainId: data.domainId } : {}),
     ...(typeof data.domainName === 'string' ? { domainName: data.domainName } : {}),
@@ -70,6 +78,7 @@ export async function patchRiskAssessmentCustomerContext(
         fileMeta: customerContext.fileMeta,
         websiteUrl: customerContext.websiteUrl,
         emailTitle: customerContext.emailTitle,
+        freeformText: customerContext.freeformText,
       },
       updatedAt: serverTimestamp(),
     },
@@ -86,7 +95,9 @@ export async function upsertRiskAssessment(id: string, input: RiskAssessmentWrit
   await setDoc(
     ref,
     {
+      name: input.name,
       owner: input.owner,
+      ...(input.riskOwner !== undefined ? { riskOwner: input.riskOwner } : {}),
       companyName: input.companyName,
       ...(input.domainId ? { domainId: input.domainId } : {}),
       ...(input.domainName ? { domainName: input.domainName } : {}),

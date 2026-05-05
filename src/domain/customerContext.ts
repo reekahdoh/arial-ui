@@ -6,6 +6,7 @@ export interface CustomerContextFields {
   fileMeta: string | null;
   websiteUrl: string;
   emailTitle: string;
+  freeformText: string;
 }
 
 export function emptyCustomerContext(): CustomerContextFields {
@@ -14,6 +15,7 @@ export function emptyCustomerContext(): CustomerContextFields {
     fileMeta: null,
     websiteUrl: '',
     emailTitle: '',
+    freeformText: '',
   };
 }
 
@@ -29,5 +31,6 @@ export function normalizeCustomerContext(
       raw.fileMeta === null || typeof raw.fileMeta === 'string' ? raw.fileMeta : base.fileMeta,
     websiteUrl: typeof raw.websiteUrl === 'string' ? raw.websiteUrl : base.websiteUrl,
     emailTitle: typeof raw.emailTitle === 'string' ? raw.emailTitle : base.emailTitle,
+    freeformText: typeof raw.freeformText === 'string' ? raw.freeformText : base.freeformText,
   };
 }

@@ -1,4 +1,4 @@
-import { Add, EmailOutlined, InsertDriveFileOutlined, LanguageOutlined } from '@mui/icons-material';
+import { Add, EmailOutlined, InsertDriveFileOutlined, LanguageOutlined, TextFields } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -50,7 +50,7 @@ function formatFileValue(file: File): string {
 
 const GMAIL_INBOX_URL = 'https://mail.google.com/mail/u/0/#inbox';
 
-type ContextSectionId = 'document' | 'website' | 'email';
+type ContextSectionId = 'document' | 'website' | 'email' | 'text';
 
 const CONTEXT_TYPE_TILES: ReadonlyArray<{
   id: ContextSectionId;
@@ -60,6 +60,7 @@ const CONTEXT_TYPE_TILES: ReadonlyArray<{
   { id: 'document', label: 'Document', Icon: InsertDriveFileOutlined },
   { id: 'website', label: 'Website', Icon: LanguageOutlined },
   { id: 'email', label: 'Email', Icon: EmailOutlined },
+  { id: 'text', label: 'Text', Icon: TextFields },
 ];
 
 function supportingContextRows(saved: CustomerContextFields): Array<{ id: ContextSectionId; type: string; details: string }> {
@@ -73,6 +74,9 @@ function supportingContextRows(saved: CustomerContextFields): Array<{ id: Contex
   }
   if (saved.emailTitle.trim()) {
     rows.push({ id: 'email', type: 'Email', details: saved.emailTitle.trim() });
+  }
+  if (saved.freeformText.trim()) {
+    rows.push({ id: 'text', type: 'Text', details: saved.freeformText.trim() });
   }
   return rows;
 }
@@ -163,11 +167,7 @@ export function AddCustomerContextPage() {
         return;
       }
       setBaseline(JSON.stringify(ctx));
-      setPersistInfo(
-        result.cloudSynced
-          ? 'Saved to the cloud.'
-          : 'Saved locally. If you use Firebase, save the risk assessment on the main page first to create the cloud document; then saves here can sync to the cloud.',
-      );
+      setPersistInfo('Saved.');
     })();
   };
 
@@ -175,10 +175,28 @@ export function AddCustomerContextPage() {
     <>
       <PageHeader
         title="Add Customer Context"
-        description="Capture customer-specific context for this risk assessment: a local file reference, a website, or a Gmail message subject. Use Save to persist."
+        description={
+          <>
+            Customer Context is effectively the requirements of your project.
+            <br />
+            <br />• What is it that you need your solution to do?
+            <br />• Why are you bringing this into your organisation?
+            <br />
+            <br />
+            These requirements are likely captured in official documents, or web pages, but also in email threads. You
+            can upload it all here.
+          </>
+        }
+        descriptionVariant="body1"
+        descriptionSx={{ fontSize: '1rem', lineHeight: 1.45 }}
         actions={
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-            <AppCTAButtonLink to={backTo} variant="outlined" color="primary">
+          <>
+            <AppCTAButtonLink
+              to={backTo}
+              variant="outlined"
+              size="small"
+              sx={{ py: 0.5 }}
+            >
               Back
             </AppCTAButtonLink>
             <Box sx={appCtaButtonTrackSx}>
@@ -191,7 +209,7 @@ export function AddCustomerContextPage() {
                 {saving ? 'Saving…' : 'Save'}
               </AppCTAButton>
             </Box>
-          </Box>
+          </>
         }
       />
       <AppCard>
@@ -260,7 +278,7 @@ export function AddCustomerContextPage() {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' },
               gap: { xs: 1, sm: 2 },
             }}
           >
@@ -340,10 +358,9 @@ export function AddCustomerContextPage() {
             <Box sx={{ display: 'grid', gap: 3, opacity: loading ? 0.6 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
           {activeSection === 'document' ? (
             <Box sx={{ display: 'grid', gap: 1.5 }}>
-              <Typography variant="subtitle2">Document from disk</Typography>
+              <Typography variant="subtitle2">Local Document</Typography>
               <Typography variant="body2" color="text.secondary">
-                Choose a file from your computer. The file name (and basic metadata) is stored as context; upload to cloud
-                storage can be added later.
+                Choose any files that contain relevant information about your project requirements.
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                 <Button variant="outlined" component="label" size="small" disabled={!assessmentId || loading}>
@@ -384,9 +401,10 @@ export function AddCustomerContextPage() {
 
           {activeSection === 'website' ? (
             <Box sx={{ display: 'grid', gap: 1.5 }}>
-              <Typography variant="subtitle2">Website</Typography>
+              <Typography variant="subtitle2">Web pages</Typography>
               <Typography variant="body2" color="text.secondary">
-                Browse in another tab, then paste the URL here—same idea as domain references.
+                Choose any web pages that contain information, particularly compliance or regulatory standards relevant to
+                your project requirements.
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                 <Button
@@ -427,10 +445,12 @@ export function AddCustomerContextPage() {
 
           {activeSection === 'email' ? (
             <Box sx={{ display: 'grid', gap: 1.5 }}>
-              <Typography variant="subtitle2">Email (Gmail)</Typography>
+              <Typography variant="subtitle2">Email</Typography>
               <Typography variant="body2" color="text.secondary">
-                Open Gmail in your browser, find the message you need, then paste its subject below. (Selecting a message
-                directly from the app would require Gmail API access and sign-in scopes.)
+                Any threads of discussion about the project requirements can be uploaded here.
+                <br />
+                <br />
+                (currently only works with Gmail)
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                 <Button
@@ -448,6 +468,24 @@ export function AddCustomerContextPage() {
                 onChange={(e) => setCtx((c) => ({ ...c, emailTitle: e.target.value }))}
                 placeholder="Paste or type the email subject line"
                 fullWidth
+              />
+            </Box>
+          ) : null}
+
+          {activeSection === 'text' ? (
+            <Box sx={{ display: 'grid', gap: 1.5 }}>
+              <Typography variant="subtitle2">Text</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Write your requirements below, or just add extra context about your project here.
+              </Typography>
+              <TextField
+                label="Customer context text"
+                value={ctx.freeformText}
+                onChange={(e) => setCtx((c) => ({ ...c, freeformText: e.target.value }))}
+                placeholder="Paste or type customer notes, background, constraints, or other context"
+                fullWidth
+                multiline
+                minRows={5}
               />
             </Box>
           ) : null}

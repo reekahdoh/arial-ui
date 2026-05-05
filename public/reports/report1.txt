@@ -1,0 +1,2239 @@
+{
+  "id": "87ab124b-5fc5-4de7-848a-dc7d7887969e",
+  "name": "Wednesday Risk Assessment 2",
+  "description": "Description of this assessment",
+  "requirement_summary": "I would like to procure a system for detecting vehicles and classifying them by colour for use in a University research paper investigating the favourite colours of car drivers in the UK",
+  "scope": {
+    "classification": {
+      "name": "Classification",
+      "description": "Maps an input to one of a finite set of categories",
+      "subtypes": [
+        "Binary classification",
+        "Multiclass classification",
+        "Multilabel classification",
+        "Hierarchical classification",
+        "Open-set classification",
+        "Zero-shot / few-shot classification"
+      ],
+      "examples": [
+        "Spam detection",
+        "Request approval/rejection",
+        "Malicious content detection",
+        "Document classification"
+      ],
+      "risks": {
+        "misclassification": {
+          "name": "Misclassification",
+          "description": "Misclassification leading to incorrect downstream decisions",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Overconfident assignment of class labels despite weak evidence",
+          "markers": [],
+          "examples": []
+        },
+        "ood": {
+          "name": "Out-of-Distribution Error",
+          "description": "Forced categorisation when the input does not fit any valid class well",
+          "markers": [],
+          "examples": []
+        },
+        "instability": {
+          "name": "Instability",
+          "description": "Instability around decision boundaries causing inconsistent outcomes",
+          "markers": [],
+          "examples": []
+        },
+        "equivalence": {
+          "name": "Misleading Equivalence",
+          "description": "Harm from reducing nuanced states to coarse categorical outputs",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "HIGH"
+        }
+      ],
+      "likelihood": "HIGH"
+    },
+    "regression": {
+      "name": "Regression",
+      "description": "Maps an input to a continuous numeric value.",
+      "subtypes": [
+        "Linear regression",
+        "Nonlinear regression",
+        "Probabilistic regression",
+        "Quantile regression"
+      ],
+      "examples": [
+        "House price prediction",
+        "Demand forecasting",
+        "Risk score prediction",
+        "Remaining useful life estimation"
+      ],
+      "risks": {
+        "inaccuracy": {
+          "name": "Inaccuracy",
+          "description": "Numerically inaccurate outputs leading to poor decisions or allocations",
+          "markers": [],
+          "examples": []
+        },
+        "false_precision": {
+          "name": "False Precision",
+          "description": "False precision where exact-looking numbers imply more certainty than warranted",
+          "markers": [],
+          "examples": []
+        },
+        "overestimation": {
+          "name": "Overestimation",
+          "description": "Systematic overestimation across cases",
+          "markers": [],
+          "examples": []
+        },
+        "underestimation": {
+          "name": "Underestimation",
+          "description": "Systematic underestimation across cases",
+          "markers": [],
+          "examples": []
+        },
+        "miscalibration": {
+          "name": "Miscalibration",
+          "description": "Poor behaviour at the extremes of the operating range",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "ranking": {
+      "name": "Ranking",
+      "description": "Orders a set of candidates by relevance, utility, likelihood, priority, or preference.",
+      "subtypes": [
+        "Pointwise ranking",
+        "Pairwise ranking",
+        "Listwise ranking"
+      ],
+      "examples": [
+        "Search results ordering",
+        "Lead prioritisation",
+        "Triage queue ordering",
+        "Recommendation candidate ordering"
+      ],
+      "risks": {
+        "misordering": {
+          "name": "Misordering",
+          "description": "Misordering of candidates causing better options to be suppressed",
+          "markers": [],
+          "examples": []
+        },
+        "oversensitivity": {
+          "name": "Oversensitivity",
+          "description": "Excessive sensitivity to small score differences that are not meaningful",
+          "markers": [],
+          "examples": []
+        },
+        "self-reinforcement": {
+          "name": "Self-reinforcement",
+          "description": "Self-reinforcing exposure effects where early rank positions dominate outcomes",
+          "markers": [],
+          "examples": []
+        },
+        "hidden-tradeoffs": {
+          "name": "Hidden Trade-offs",
+          "description": "Hidden trade-offs between relevance, utility, safety, or fairness",
+          "markers": [],
+          "examples": []
+        },
+        "auditability": {
+          "name": "Auditability",
+          "description": "Opaque prioritisation logic that is hard to contest or audit",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "retrieval": {
+      "name": "Retrieval",
+      "description": "Finds the most relevant items from a store or memory given a query.",
+      "subtypes": [
+        "Keyword retrieval",
+        "Semantic retrieval",
+        "Dense retrieval",
+        "Sparse retrieval",
+        "Hybrid retrieval",
+        "Case-based retrieval"
+      ],
+      "examples": [
+        "Document retrieval",
+        "Nearest-neighbour lookup",
+        "Case retrieval",
+        "Evidence retrieval"
+      ],
+      "risks": {
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "Failure to retrieve relevant items that are needed for correct performance",
+          "markers": [],
+          "examples": []
+        },
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Retrieval of irrelevant but plausible items that mislead subsequent steps",
+          "markers": [],
+          "examples": []
+        },
+        "undercoverage": {
+          "name": "Incomplete Coverage",
+          "description": "Over-reliance on top-ranked retrieved items despite incomplete coverage",
+          "markers": [],
+          "examples": []
+        },
+        "fragmentation": {
+          "name": "Context Fragmentation",
+          "description": "Context fragmentation where crucial information is retrieved without surrounding qualifiers",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "False sense of completeness when retrieved results appear authoritative but are partial",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "recommendation": {
+      "name": "Recommendation",
+      "description": "Selects or ranks items likely to be useful, preferred, or valuable for a user or context.",
+      "subtypes": [
+        "Collaborative filtering",
+        "Content-based recommendation",
+        "Context-aware recommendation",
+        "Next-best-action recommendation"
+      ],
+      "examples": [
+        "Product recommendations",
+        "People you may know",
+        "Next-best-action suggestions",
+        "Content recommendations"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Inappropriate recommendations that do not align with user needs or goals",
+          "markers": [],
+          "examples": []
+        },
+        "self-reinforcement": {
+          "name": "Self-reinforcement",
+          "description": "Narrowing of options through repetitive or self-reinforcing suggestions",
+          "markers": [],
+          "examples": []
+        },
+        "misprioritisation": {
+          "name": "Misprioritisation",
+          "description": "Optimisation for engagement or uptake rather than user welfare",
+          "markers": [],
+          "examples": []
+        },
+        "steering": {
+          "name": "Steering Effects",
+          "description": "Steering effects that influence behaviour without adequate transparency",
+          "markers": [],
+          "examples": []
+        },
+        "drift": {
+          "name": "Drift",
+          "description": "Failure to account for changing preferences",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "clustering": {
+      "name": "Clustering",
+      "description": "Groups inputs into latent or discovered categories without fixed predefined labels.",
+      "subtypes": [
+        "Partition-based clustering",
+        "Hierarchical clustering",
+        "Density-based clustering",
+        "Model-based clustering"
+      ],
+      "examples": [
+        "Customer segmentation",
+        "Anomaly family grouping",
+        "Document topic grouping",
+        "Behavioural pattern grouping"
+      ],
+      "risks": {
+        "underrealism": {
+          "name": "Underrealism",
+          "description": "Formation of artificial groups that are treated as real or meaningful",
+          "markers": [],
+          "examples": []
+        },
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Misleading group boundaries where similar items are separated or dissimilar items merged",
+          "markers": [],
+          "examples": []
+        },
+        "overinterpreation": {
+          "name": "Overinterpretation",
+          "description": "Overinterpretation of latent structure that may be unstable or incidental",
+          "markers": [],
+          "examples": []
+        },
+        "category-error": {
+          "name": "Category Error",
+          "description": "Assignment of normative meaning to descriptive groupings",
+          "markers": [],
+          "examples": []
+        },
+        "undervalidation": {
+          "name": "Undervalidation",
+          "description": "Downstream decisions becoming anchored to clusters that are hard to validate",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Will the system need to discover previously unknown colour groupings or visual clusters among vehicles, rather than only assign each detected vehicle to predefined colour labels such as black, white, silver, blue, and red?"
+        },
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "representation": {
+      "name": "Dimensionality reduction / representation learning",
+      "description": "Transforms input into a reduced or structured representation that preserves useful properties.",
+      "subtypes": [
+        "Feature extraction",
+        "Embedding generation",
+        "Latent representation learning",
+        "Manifold learning"
+      ],
+      "examples": [
+        "Embedding generation",
+        "Latent-space projection",
+        "Feature extraction",
+        "Manifold learning"
+      ],
+      "risks": {
+        "lossiness": {
+          "name": "Lossiness",
+          "description": "Loss of information that is important for later decisions or analyses",
+          "markers": [],
+          "examples": []
+        },
+        "overrepresentation": {
+          "name": "Overrepresentation",
+          "description": "Compression of distinct cases into similar representations",
+          "markers": [],
+          "examples": []
+        },
+        "spuriousness": {
+          "name": "Spuriousness",
+          "description": "Representations capturing spurious structure rather than task-relevant structure",
+          "markers": [],
+          "examples": []
+        },
+        "underinterpretability": {
+          "name": "Underinterpretability",
+          "description": "Reduced interpretability of what information is preserved or discarded",
+          "markers": [],
+          "examples": []
+        },
+        "distortion": {
+          "name": "Distortion",
+          "description": "Propagation of representational distortions into downstream systems",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Will the system need to learn compact image features or embeddings for vehicles or colours, for example to improve classification, clustering, similarity search, or analysis beyond using a standard fixed detector and colour classifier?"
+        },
+        {
+          "role": "assistant",
+          "content": "Will the system need to learn compact image features or embeddings for vehicles or colours, for example to improve classification, clustering, similarity search, or analysis beyond using a standard fixed detector and colour classifier?"
+        },
+        {
+          "role": "assistant",
+          "content": "Will the system need to learn compact image features or embeddings for vehicles or colours, for example to support similarity search, clustering, or custom model training beyond using a standard vehicle detector and colour classifier?"
+        },
+        {
+          "role": "assistant",
+          "content": "LOW"
+        }
+      ],
+      "likelihood": "LOW"
+    },
+    "anomoly-detection": {
+      "name": "Anomaly / novelty / outlier detection",
+      "description": "Determines whether something deviates materially from expected patterns.",
+      "subtypes": [
+        "Point anomaly detection",
+        "Contextual anomaly detection",
+        "Collective anomaly detection",
+        "Novelty detection"
+      ],
+      "examples": [
+        "Fraud detection",
+        "Intrusion detection",
+        "Equipment fault detection",
+        "Unusual transaction monitoring"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Normal cases being flagged as anomalous, creating unnecessary intervention",
+          "markers": [],
+          "examples": []
+        },
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "True anomalies being missed because they resemble expected variation",
+          "markers": [],
+          "examples": []
+        },
+        "category-error": {
+          "name": "Category Error",
+          "description": "Treating rarity as risk when unusual does not necessarily mean harmful",
+          "markers": [],
+          "examples": []
+        },
+        "low-threshold": {
+          "name": "Low Threshold",
+          "description": "Alert fatigue from excessive or unstable anomaly signalling",
+          "markers": [],
+          "examples": []
+        },
+        "miscalibration": {
+          "name": "Miscalibration",
+          "description": "Poorly calibrated thresholds causing inconsistent escalation behaviour",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "localisation": {
+      "name": "Detection / localisation",
+      "description": "Determines whether a target is present and often where it is.",
+      "subtypes": [
+        "Object detection",
+        "Event detection",
+        "Keyword spotting",
+        "Defect localisation"
+      ],
+      "examples": [
+        "Object detection in images",
+        "Event detection in time series",
+        "Keyword spotting in audio",
+        "Lesion detection"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "False detection of targets or events that are not present",
+          "markers": [],
+          "examples": []
+        },
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "Failure to detect a relevant target or event",
+          "markers": [],
+          "examples": []
+        },
+        "mislocalisation": {
+          "name": "Mislocalisation",
+          "description": "Incorrect localisation or boundary placement leading to action on the wrong area",
+          "markers": [],
+          "examples": []
+        },
+        "duplication": {
+          "name": "Duplication",
+          "description": "Duplicate detections that distort downstream counting or response",
+          "markers": [],
+          "examples": []
+        },
+        "fragmentation": {
+          "name": "Fragmentation",
+          "description": "Fragmented detections that distort downstream counting or response",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "HIGH"
+        }
+      ],
+      "likelihood": "HIGH"
+    },
+    "segmentation": {
+      "name": "Segmentation / partitioning",
+      "description": "Assigns labels or boundaries to parts of an input rather than to the whole input.",
+      "subtypes": [
+        "Semantic segmentation",
+        "Instance segmentation",
+        "Boundary detection",
+        "Regime segmentation"
+      ],
+      "examples": [
+        "Pixel-wise segmentation",
+        "Document section segmentation",
+        "Speaker diarisation",
+        "Time-series regime segmentation"
+      ],
+      "risks": {
+        "boundary-error": {
+          "name": "Boundary Error",
+          "description": "Incorrect partition boundaries that distort later interpretation or action",
+          "markers": [],
+          "examples": []
+        },
+        "over-segmentation": {
+          "name": "Over-Segmentation",
+          "description": "Over-segmentation splitting coherent units into misleading fragments",
+          "markers": [],
+          "examples": []
+        },
+        "under-segmentation": {
+          "name": "Under-Segmentation",
+          "description": "Under-segmentation merging distinct units that should remain separate",
+          "markers": [],
+          "examples": []
+        },
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "Boundary ambiguity being hidden behind crisp-looking partitions",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Downstream over-reliance on partitions as though they were objective ground truth",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Will the system need pixel-level or per-vehicle outline masks, such as separating each vehicle from the background or handling overlapping vehicles, rather than only bounding-box detection and whole-vehicle colour classification?"
+        },
+        {
+          "role": "assistant",
+          "content": "HIGH"
+        }
+      ],
+      "likelihood": "HIGH"
+    },
+    "labelling": {
+      "name": "Sequence labelling / structured prediction",
+      "description": "Assigns labels to elements of a structured input while respecting relationships between outputs.",
+      "subtypes": [
+        "Token classification",
+        "Named entity recognition",
+        "Part-of-speech tagging",
+        "Parsing",
+        "Slot filling"
+      ],
+      "examples": [
+        "Named entity recognition",
+        "Part-of-speech tagging",
+        "Token classification",
+        "Information slot filling"
+      ],
+      "risks": {
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Local labelling errors propagating through the structure of the output",
+          "markers": [],
+          "examples": []
+        },
+        "incoherence": {
+          "name": "Incoherence",
+          "description": "Incoherent label combinations that violate expected relationships",
+          "markers": [],
+          "examples": []
+        },
+        "boundary-error": {
+          "name": "Boundary Error",
+          "description": "Boundary errors that change the meaning of extracted or labelled units",
+          "markers": [],
+          "examples": []
+        },
+        "consistent-error": {
+          "name": "Consistent Error",
+          "description": "Apparent structural consistency masking incorrect interpretations",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Downstream systems assuming labelled structure is more reliable than it is",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "transformation": {
+      "name": "Transformation / translation",
+      "description": "Maps one representation into another while preserving or systematically altering meaning or structure.",
+      "subtypes": [
+        "Machine translation",
+        "Transcription",
+        "Schema conversion",
+        "Style transfer",
+        "Format conversion"
+      ],
+      "examples": [
+        "Language translation",
+        "Summarisation",
+        "Speech-to-text",
+        "Text-to-JSON conversion",
+        "OCR"
+      ],
+      "risks": {
+        "lossiness": {
+          "name": "Lossiness",
+          "description": "Loss or distortion of meaning during transformation",
+          "markers": [],
+          "examples": []
+        },
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Introduction of artefacts not present in the source",
+          "markers": [],
+          "examples": []
+        },
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "Failure to preserve important qualifiers, constraints, or nuance",
+          "markers": [],
+          "examples": []
+        },
+        "overnormalisation": {
+          "name": "Overnormalisation",
+          "description": "Excessive normalisation that removes contextually important variation",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Users treating transformed output as fully equivalent to the source when it is not",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "generation": {
+      "name": "Generation / synthesis",
+      "description": "Produces novel outputs consistent with some learned distribution, prompt, or constraint.",
+      "subtypes": [
+        "Text generation",
+        "Image generation",
+        "Audio generation",
+        "Code generation",
+        "Synthetic data generation"
+      ],
+      "examples": [
+        "Report drafting",
+        "Image synthesis",
+        "Music generation",
+        "Code generation",
+        "Synthetic data generation"
+      ],
+      "risks": {
+        "hallucination": {
+          "name": "Hallucination",
+          "description": "Production of plausible but incorrect or misleading outputs",
+          "markers": [],
+          "examples": []
+        },
+        "inconsistency": {
+          "name": "Inconsistency",
+          "description": "Uncontrolled variability causing inconsistency across similar requests",
+          "markers": [],
+          "examples": []
+        },
+        "under-constrained": {
+          "name": "Under-Constrained",
+          "description": "Omission of important constraints unless explicitly specified",
+          "markers": [],
+          "examples": []
+        },
+        "undervalidation": {
+          "name": "Undervalidation",
+          "description": "Difficulty verifying whether generated content is appropriate for its intended use",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Outputs appearing more authoritative, complete, or original than justified",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "LOW"
+        }
+      ],
+      "likelihood": "LOW"
+    },
+    "completion": {
+      "name": "Completion / imputation",
+      "description": "Fills in missing parts of an input or artefact.",
+      "subtypes": [
+        "Text completion",
+        "Missing value imputation",
+        "Image inpainting",
+        "Code completion",
+        "Form completion"
+      ],
+      "examples": [
+        "Sentence completion",
+        "Missing data imputation",
+        "Image inpainting",
+        "Code autocompletion",
+        "Form completion"
+      ],
+      "risks": {
+        "hallucination": {
+          "name": "Hallucination",
+          "description": "Filling gaps with plausible but wrong content",
+          "markers": [],
+          "examples": []
+        },
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "Concealing uncertainty by presenting inferred content as though observed",
+          "markers": [],
+          "examples": []
+        },
+        "bias": {
+          "name": "Bias",
+          "description": "Biasing downstream interpretation by silently choosing one plausible completion",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Error propagation when incomplete inputs are treated as sufficiently recoverable",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Encouraging overtrust in completed artefacts that contain unverifiable assumptions",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "prediction": {
+      "name": "Forecasting / temporal prediction",
+      "description": "Predicts future states, values, or events from past and present observations.",
+      "subtypes": [
+        "Time-series forecasting",
+        "Event forecasting",
+        "Trajectory forecasting",
+        "Sequence prediction"
+      ],
+      "examples": [
+        "Sales forecasting",
+        "Load forecasting",
+        "Predictive maintenance",
+        "ETA prediction"
+      ],
+      "risks": {
+        "inaccuracy": {
+          "name": "Inaccuracy",
+          "description": "Incorrect future predictions leading to mistimed or mis-scaled action",
+          "markers": [],
+          "examples": []
+        },
+        "drift": {
+          "name": "Drift",
+          "description": "Rapid degradation when underlying conditions change over time",
+          "markers": [],
+          "examples": []
+        },
+        "overinterpreation": {
+          "name": "Overinterpretation",
+          "description": "Use of forecasts as commitments rather than contingent estimates",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Error compounding over longer forecast horizons",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "False confidence in single predicted futures despite underlying uncertainty",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "estimation": {
+      "name": "Causal inference / effect estimation",
+      "description": "Estimates the effect of an intervention, not just correlation.",
+      "subtypes": [
+        "Treatment effect estimation",
+        "Uplift modelling",
+        "Counterfactual estimation",
+        "Policy impact estimation"
+      ],
+      "examples": [
+        "Uplift modelling",
+        "Treatment effect estimation",
+        "Counterfactual prediction",
+        "Policy impact estimation"
+      ],
+      "risks": {
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "Mistaking correlation for intervention effect",
+          "markers": [],
+          "examples": []
+        },
+        "counterfactuality": {
+          "name": "Counterfactuality",
+          "description": "Incorrect counterfactual reasoning leading to harmful policy choices",
+          "markers": [],
+          "examples": []
+        },
+        "fixation": {
+          "name": "Fixation",
+          "description": "Failure to account for unobserved factors that alter conclusions",
+          "markers": [],
+          "examples": []
+        },
+        "overgeneralisation": {
+          "name": "Overgeneralisation",
+          "description": "Misapplication of estimated effects outside the setting in which they hold",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Overstating certainty in estimated effects that depend on strong assumptions",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "simulation": {
+      "name": "Simulation / world modelling",
+      "description": "Predicts how a system evolves under actions, interventions, or scenarios.",
+      "subtypes": [
+        "Digital twin simulation",
+        "Scenario simulation",
+        "Behaviour simulation",
+        "Environment modelling"
+      ],
+      "examples": [
+        "Traffic simulation",
+        "Market simulation",
+        "Battlefield simulation",
+        "User-behaviour simulation"
+      ],
+      "risks": {
+        "divergence": {
+          "name": "Divergence",
+          "description": "Simulated behaviour diverging materially from real-world behaviour",
+          "markers": [],
+          "examples": []
+        },
+        "overfitting": {
+          "name": "Overfitting",
+          "description": "Policy choices being overfit to the simulator rather than reality",
+          "markers": [],
+          "examples": []
+        },
+        "fixation": {
+          "name": "Fixation",
+          "description": "Overlooking rare but consequential scenarios outside the modelled space",
+          "markers": [],
+          "examples": []
+        },
+        "overinterpreation": {
+          "name": "Overinterpretation",
+          "description": "Users mistaking scenario exploration for validated prediction",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "False confidence arising from internally coherent but unrealistic simulations",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "optimisation": {
+      "name": "Optimisation",
+      "description": "Searches for the best configuration, plan, schedule, design, or decision under constraints.",
+      "subtypes": [
+        "Combinatorial optimisation",
+        "Continuous optimisation",
+        "Constrained optimisation",
+        "Multi-objective optimisation"
+      ],
+      "examples": [
+        "Route optimisation",
+        "Production scheduling",
+        "Portfolio optimisation",
+        "Resource allocation"
+      ],
+      "risks": {
+        "wild-goose-chase": {
+          "name": "Wild Goose Chase",
+          "description": "Optimising the wrong objective or an incomplete proxy for the true goal",
+          "markers": [],
+          "examples": []
+        },
+        "overfitting": {
+          "name": "Overfitting",
+          "description": "Producing brittle solutions that perform poorly under slight change",
+          "markers": [],
+          "examples": []
+        },
+        "under-constrained": {
+          "name": "Under-Constrained",
+          "description": "Driving harmful trade-offs because constraints are incomplete or mis-specified",
+          "markers": [],
+          "examples": []
+        },
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "Concentrating gains in one metric while degrading others that matter",
+          "markers": [],
+          "examples": []
+        },
+        "ood": {
+          "name": "Out-of-Distribution Error",
+          "description": "Generating solutions that are technically optimal but operationally unacceptable",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "planning": {
+      "name": "Planning",
+      "description": "Constructs a sequence of actions to achieve goals under constraints.",
+      "subtypes": [
+        "Task planning",
+        "Motion planning",
+        "Workflow planning",
+        "Contingency planning"
+      ],
+      "examples": [
+        "Robot task planning",
+        "Workflow planning",
+        "Travel planning",
+        "Autonomous mission planning"
+      ],
+      "risks": {
+        "incompleteness": {
+          "name": "Incompleteness",
+          "description": "Constructing plans that are invalid, infeasible, or incomplete",
+          "markers": [],
+          "examples": []
+        },
+        "drift": {
+          "name": "Drift",
+          "description": "Failure to account for uncertainty, contingencies, or changing conditions",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Error in earlier planning steps propagating through the whole plan",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Users overtrusting a produced plan because it appears systematic",
+          "markers": [],
+          "examples": []
+        },
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "Superficially coherent plans masking hidden dependencies or conflicts",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "control": {
+      "name": "Control",
+      "description": "Chooses actions continuously or iteratively to regulate a dynamic system.",
+      "subtypes": [
+        "Feedback control",
+        "Adaptive control",
+        "Predictive control",
+        "Closed-loop control"
+      ],
+      "examples": [
+        "Autonomous driving control",
+        "Robot motion control",
+        "Manufacturing process control",
+        "HVAC control"
+      ],
+      "risks": {
+        "feedback": {
+          "name": "Feedback",
+          "description": "Feedback effects where control actions worsen the state being regulated",
+          "markers": [],
+          "examples": []
+        },
+        "drift": {
+          "name": "Drift",
+          "description": "Unsafe or unstable actions in response to changing system state",
+          "markers": [],
+          "examples": []
+        },
+        "ood": {
+          "name": "Out-of-Distribution Error",
+          "description": "Poor performance when the environment differs from assumed conditions",
+          "markers": [],
+          "examples": []
+        },
+        "instability": {
+          "name": "Instability",
+          "description": "Delayed or oscillatory behaviour causing loss of control quality",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Insufficient graceful degradation when confidence is low or signals are ambiguous",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "decision-making": {
+      "name": "Decisioning / policy selection",
+      "description": "Maps a context to a discrete action, recommendation, or policy decision.",
+      "subtypes": [
+        "Approval decisioning",
+        "Triage decisioning",
+        "Policy routing",
+        "Moderation decisioning"
+      ],
+      "examples": [
+        "Loan approval",
+        "Underwriting decision",
+        "Medical triage recommendation",
+        "Alert escalation"
+      ],
+      "risks": {
+        "inaccuracy": {
+          "name": "Inaccuracy",
+          "description": "Incorrect action selection with immediate operational or human impact",
+          "markers": [],
+          "examples": []
+        },
+        "inconsistency": {
+          "name": "Inconsistency",
+          "description": "Inconsistent decisions across similar cases",
+          "markers": [],
+          "examples": []
+        },
+        "bias": {
+          "name": "Bias",
+          "description": "Hidden value judgements embedded in the decision policy",
+          "markers": [],
+          "examples": []
+        },
+        "overreach": {
+          "name": "Overreach",
+          "description": "Over-automation of decisions that require human discretion or accountability",
+          "markers": [],
+          "examples": []
+        },
+        "opacity": {
+          "name": "Opacity",
+          "description": "Difficulty contesting or explaining action choices once operationalised",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "interaction-management": {
+      "name": "Dialogue / interaction management",
+      "description": "Maintains state across turns and produces contextually appropriate responses or actions.",
+      "subtypes": [
+        "Task-oriented dialogue",
+        "Open-domain dialogue",
+        "Voice interaction management",
+        "Support dialogue management"
+      ],
+      "examples": [
+        "Chatbots",
+        "Voice assistants",
+        "Interview agents",
+        "Troubleshooting assistants"
+      ],
+      "risks": {
+        "forgetting": {
+          "name": "Forgetting",
+          "description": "Loss of conversational state leading to inappropriate responses or actions",
+          "markers": [],
+          "examples": []
+        },
+        "misinterpretation": {
+          "name": "Misinterpretation",
+          "description": "Misinterpretation of user intent across turns",
+          "markers": [],
+          "examples": []
+        },
+        "bad-influence": {
+          "name": "Bad Influence",
+          "description": "Undue steering of user behaviour through interaction dynamics",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Accumulation of small conversational errors into materially wrong outcomes",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Users attributing understanding or competence beyond what the system possesses",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "question-answering": {
+      "name": "Question answering",
+      "description": "Maps a query and optional context to an answer.",
+      "subtypes": [
+        "Extractive question answering",
+        "Open-domain question answering",
+        "Closed-book question answering",
+        "Retrieval-augmented question answering"
+      ],
+      "examples": [
+        "Extractive QA over a document",
+        "Open-domain QA",
+        "RAG-based answering",
+        "Database question answering"
+      ],
+      "risks": {
+        "inaccuracy": {
+          "name": "Inaccuracy",
+          "description": "Providing incorrect answers in a direct and persuasive form",
+          "markers": [],
+          "examples": []
+        },
+        "acting-in-ignorance": {
+          "name": "Acting in Ignorance",
+          "description": "Answering questions that are underspecified without surfacing ambiguity",
+          "markers": [],
+          "examples": []
+        },
+        "misinterpretation": {
+          "name": "Misinterpretation",
+          "description": "Omitting caveats or conditions needed for correct interpretation",
+          "markers": [],
+          "examples": []
+        },
+        "incompleteness": {
+          "name": "Incompleteness",
+          "description": "Presenting incomplete answers as though they are sufficient",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Encouraging over-reliance because the interaction format implies certainty",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Should researchers be able to ask natural-language questions about the analysed vehicle-image dataset or study results and receive direct answers, rather than only getting detection outputs, colour labels, and aggregate statistics?"
+        },
+        {
+          "role": "assistant",
+          "content": "LOW"
+        }
+      ],
+      "likelihood": "LOW"
+    },
+    "data-extraction": {
+      "name": "Information extraction",
+      "description": "Pulls structured facts, relations, or fields from unstructured input.",
+      "subtypes": [
+        "Entity extraction",
+        "Relation extraction",
+        "Event extraction",
+        "Field extraction"
+      ],
+      "examples": [
+        "Invoice field extraction",
+        "Contract clause extraction",
+        "Entity extraction from text",
+        "Relation extraction"
+      ],
+      "risks": {
+        "inaccuracy": {
+          "name": "Inaccuracy",
+          "description": "Extraction of incorrect fields, entities, or relations",
+          "markers": [],
+          "examples": []
+        },
+        "lossiness": {
+          "name": "Lossiness",
+          "description": "Loss of contextual qualifiers when converting from unstructured to structured form",
+          "markers": [],
+          "examples": []
+        },
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "False structuring of ambiguous content into precise-looking outputs",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Downstream automation being triggered by extraction errors",
+          "markers": [],
+          "examples": []
+        },
+        "incompleteness": {
+          "name": "Incompleteness",
+          "description": "Incomplete extraction creating misleading records or summaries",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Will the system need to extract any structured facts from unstructured text or documents, such as vehicle registration details, location, date/time, or metadata from annotations, rather than only detect vehicles in images/video and classify their colour?"
+        },
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "matching": {
+      "name": "Matching / similarity assessment",
+      "description": "Determines whether two or more items correspond, are similar, or refer to the same thing.",
+      "subtypes": [
+        "Entity matching",
+        "Duplicate detection",
+        "Similarity scoring",
+        "Verification matching"
+      ],
+      "examples": [
+        "Entity resolution",
+        "Duplicate detection",
+        "Face verification",
+        "Semantic textual similarity"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Incorrectly linking items that should remain distinct",
+          "markers": [],
+          "examples": []
+        },
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "Failing to link items that should be treated as the same or related",
+          "markers": [],
+          "examples": []
+        },
+        "overinterpreation": {
+          "name": "Overinterpretation",
+          "description": "Similarity scores being mistaken for identity or equivalence",
+          "markers": [],
+          "examples": []
+        },
+        "threshold-error": {
+          "name": "Threshold Error",
+          "description": "Threshold choices creating arbitrary inclusion or exclusion effects",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Downstream propagation of linkage errors across records or decisions",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "verification-validation": {
+      "name": "Verification / validation",
+      "description": "Assesses whether an artefact, claim, identity, or output satisfies specified criteria.",
+      "subtypes": [
+        "Identity verification",
+        "Claim verification",
+        "Compliance checking",
+        "Consistency checking"
+      ],
+      "examples": [
+        "Identity verification",
+        "Claim verification",
+        "Policy compliance checking",
+        "Factual consistency checking"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Incorrect acceptance of something that should fail verification",
+          "markers": [],
+          "examples": []
+        },
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "Incorrect rejection of something that should pass verification",
+          "markers": [],
+          "examples": []
+        },
+        "overinterpreation": {
+          "name": "Overinterpretation",
+          "description": "Treating partial evidence as sufficient validation",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Overconfidence in binary pass or fail outputs despite ambiguous cases",
+          "markers": [],
+          "examples": []
+        },
+        "misapplication": {
+          "name": "Misapplication",
+          "description": "Use of validation outputs beyond the scope of what was actually checked",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "constraint-satisfication": {
+      "name": "Constraint satisfaction",
+      "description": "Finds outputs that satisfy a set of rules, bounds, or logical conditions.",
+      "subtypes": [
+        "Scheduling under constraints",
+        "Configuration solving",
+        "Rule satisfaction",
+        "Feasibility solving"
+      ],
+      "examples": [
+        "Timetable construction",
+        "Legal-rule compliance configuration",
+        "Compatible component selection",
+        "Puzzle solving"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Producing outputs that appear valid while silently violating constraints",
+          "markers": [],
+          "examples": []
+        },
+        "overfitting": {
+          "name": "Overfitting",
+          "description": "Satisfying formal constraints while missing practical acceptability",
+          "markers": [],
+          "examples": []
+        },
+        "instability": {
+          "name": "Instability",
+          "description": "Conflict between constraints leading to brittle or arbitrary resolutions",
+          "markers": [],
+          "examples": []
+        },
+        "underfitting": {
+          "name": "Underfitting",
+          "description": "Incomplete constraint specification yielding unsafe feasible solutions",
+          "markers": [],
+          "examples": []
+        },
+        "misapplication": {
+          "name": "Misapplication",
+          "description": "Users assuming that satisfiable means desirable or optimal",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "reasoning": {
+      "name": "Reasoning / inference",
+      "description": "Derives conclusions from premises, context, or rules.",
+      "subtypes": [
+        "Deductive inference",
+        "Abductive inference",
+        "Inductive generalisation",
+        "Analogical reasoning",
+        "Commonsense reasoning",
+        "Mathematical reasoning",
+        "Legal reasoning"
+      ],
+      "examples": [
+        "Deriving conclusions from evidence",
+        "Solving mathematical problems",
+        "Legal argument analysis",
+        "Commonsense reasoning over scenarios"
+      ],
+      "risks": {
+        "invalidity": {
+          "name": "Invalidity",
+          "description": "Drawing invalid conclusions from the available premises",
+          "markers": [],
+          "examples": []
+        },
+        "hallucination": {
+          "name": "Hallucination",
+          "description": "Confidently filling logical gaps with unsupported assumptions",
+          "markers": [],
+          "examples": []
+        },
+        "unsoundness": {
+          "name": "Unsoundness",
+          "description": "Producing internally coherent but unsound chains of reasoning",
+          "markers": [],
+          "examples": []
+        },
+        "fixation": {
+          "name": "Fixation",
+          "description": "Failing to recognise ambiguity, underdetermination, or competing interpretations",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Users trusting fluent reasoning traces more than warranted by their validity",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "orchestration": {
+      "name": "Tool selection / orchestration",
+      "description": "Chooses which external function, system, or resource to invoke and in what order.",
+      "subtypes": [
+        "Tool routing",
+        "API selection",
+        "Workflow orchestration",
+        "Resource selection"
+      ],
+      "examples": [
+        "Agent tool calling",
+        "API routing",
+        "Workflow orchestration",
+        "Retrieval-versus-calculate routing"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Choosing the wrong tool or resource for the task",
+          "markers": [],
+          "examples": []
+        },
+        "configuration-error": {
+          "name": "Configuration Error",
+          "description": "Incorrect sequencing of tools causing compounding downstream error",
+          "markers": [],
+          "examples": []
+        },
+        "instability": {
+          "name": "Instability",
+          "description": "Loss of control over assumptions passed between tools",
+          "markers": [],
+          "examples": []
+        },
+        "complexity": {
+          "name": "Complexity",
+          "description": "Expanded operational risk from dependence on multiple external components",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Failure to detect when a tool result is invalid, stale, or insufficient",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Will the system need to dynamically choose between multiple external tools or services, such as different detection models, colour-classification models, data sources, or review workflows, rather than using a fixed processing pipeline?"
+        },
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "state-estimation": {
+      "name": "Monitoring / state estimation",
+      "description": "Infers the current hidden or partially observed state of a system.",
+      "subtypes": [
+        "Health estimation",
+        "Intent estimation",
+        "Regime estimation",
+        "Latent state inference"
+      ],
+      "examples": [
+        "Patient state estimation",
+        "Machine health estimation",
+        "Market regime estimation",
+        "User engagement estimation"
+      ],
+      "risks": {
+        "inaccuracy": {
+          "name": "Inaccuracy",
+          "description": "Incorrect estimation of the current state of a system",
+          "markers": [],
+          "examples": []
+        },
+        "latency": {
+          "name": "Latency",
+          "description": "Latency between real state change and detected state change",
+          "markers": [],
+          "examples": []
+        },
+        "bias": {
+          "name": "Bias",
+          "description": "Hidden-state assumptions causing systematic misinterpretation",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Downstream interventions being triggered from stale or inaccurate state estimates",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Overconfidence in estimated state despite partial observability",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "attribution": {
+      "name": "Attribution / explanation",
+      "description": "Produces explanations, rationales, feature importance, or causal narratives for outputs.",
+      "subtypes": [
+        "Feature attribution",
+        "Natural-language explanation",
+        "Counterfactual explanation",
+        "Rationale generation"
+      ],
+      "examples": [
+        "Why a loan was declined",
+        "Top contributing factors",
+        "Natural-language rationale",
+        "Saliency output"
+      ],
+      "risks": {
+        "hallucination": {
+          "name": "Hallucination",
+          "description": "Explanations that are plausible but not faithful to the true basis of output",
+          "markers": [],
+          "examples": []
+        },
+        "oversimplification": {
+          "name": "Oversimplification",
+          "description": "Over-simplification of multifactor decisions into misleading narratives",
+          "markers": [],
+          "examples": []
+        },
+        "misrepresentation": {
+          "name": "Misrepresentation",
+          "description": "Users treating explanations as justification rather than approximation",
+          "markers": [],
+          "examples": []
+        },
+        "misprioritisation": {
+          "name": "Misprioritisation",
+          "description": "Selective emphasis on some factors while obscuring others that matter",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Explanatory outputs increasing trust even when the underlying decision is poor",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "LOW"
+        }
+      ],
+      "likelihood": "LOW"
+    },
+    "recall-management": {
+      "name": "Memory / stateful recall",
+      "description": "Stores, updates, and retrieves relevant information over time to affect later outputs.",
+      "subtypes": [
+        "Short-term memory",
+        "Long-term memory",
+        "Episodic recall",
+        "Preference memory"
+      ],
+      "examples": [
+        "Conversational memory",
+        "User preference memory",
+        "Long-term case memory",
+        "Episodic retrieval"
+      ],
+      "risks": {
+        "imprecision": {
+          "name": "Imprecision",
+          "description": "Recalling incorrect, stale, or inapplicable prior information",
+          "markers": [],
+          "examples": []
+        },
+        "poor-recall": {
+          "name": "Poor Recall",
+          "description": "Failure to retrieve relevant state when needed",
+          "markers": [],
+          "examples": []
+        },
+        "contamination": {
+          "name": "Contamination",
+          "description": "Contamination of current outputs by irrelevant historical context",
+          "markers": [],
+          "examples": []
+        },
+        "opacity": {
+          "name": "Opacity",
+          "description": "Unclear provenance of remembered content affecting trust and accountability",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Accumulation of memory errors over time",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "summarisation": {
+      "name": "Compression / abstraction",
+      "description": "Produces shorter, more abstract, or more information-dense representations.",
+      "subtypes": [
+        "Summarisation",
+        "Topic abstraction",
+        "Pattern abstraction",
+        "Knowledge compression"
+      ],
+      "examples": [
+        "Document summarisation",
+        "Topic abstraction",
+        "Pattern abstraction",
+        "Information compression"
+      ],
+      "risks": {
+        "lossiness": {
+          "name": "Lossiness",
+          "description": "Loss of important detail during abstraction or summarisation",
+          "markers": [],
+          "examples": []
+        },
+        "overfitting": {
+          "name": "Overfitting",
+          "description": "Over-compression that removes qualifiers, exceptions, or uncertainty",
+          "markers": [],
+          "examples": []
+        },
+        "misprioritisation": {
+          "name": "Misprioritisation",
+          "description": "Distortion of emphasis by privileging some information over other information",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "Users treating abstractions as substitutes for the full source",
+          "markers": [],
+          "examples": []
+        },
+        "error-propagation": {
+          "name": "Error Propagation",
+          "description": "Downstream decisions being made from summaries that omit critical context",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "NONE"
+        }
+      ],
+      "likelihood": "NONE"
+    },
+    "uncertainty-estimation": {
+      "name": "Estimation of uncertainty / confidence",
+      "description": "Outputs not just a prediction, but a measure of uncertainty, confidence, or calibration.",
+      "subtypes": [
+        "Confidence scoring",
+        "Calibration estimation",
+        "Predictive interval estimation",
+        "Epistemic uncertainty estimation"
+      ],
+      "examples": [
+        "Confidence scoring",
+        "Predictive intervals",
+        "Epistemic uncertainty estimation",
+        "Abstention trigger scoring"
+      ],
+      "risks": {
+        "miscalibration": {
+          "name": "Miscalibration",
+          "description": "Confidence measures being poorly calibrated to actual performance",
+          "markers": [],
+          "examples": []
+        },
+        "undervalidation": {
+          "name": "Undervalidation",
+          "description": "Uncertainty signals being ignored, misunderstood, or misused operationally",
+          "markers": [],
+          "examples": []
+        },
+        "overgeneralisation": {
+          "name": "Overgeneralisation",
+          "description": "Failure to distinguish different sources of uncertainty that require different responses",
+          "markers": [],
+          "examples": []
+        },
+        "overconfidence": {
+          "name": "Overconfidence",
+          "description": "False reassurance from narrow confidence expressions",
+          "markers": [],
+          "examples": []
+        },
+        "instability": {
+          "name": "Instability",
+          "description": "Inconsistent confidence behaviour across similar cases",
+          "markers": [],
+          "examples": []
+        }
+      },
+      "status": "assessed",
+      "survey": [
+        {
+          "role": "assistant",
+          "content": "Should the vehicle detection and colour-classification system expose confidence scores or uncertainty signals for each detection or colour label, for example to support filtering, abstention, or manual review of ambiguous cases?"
+        },
+        {
+          "role": "assistant",
+          "content": "Will the system need to expose confidence scores or uncertainty signals for each vehicle detection or colour classification so researchers can filter low-confidence cases, trigger manual review, or exclude ambiguous results from the analysis?"
+        },
+        {
+          "role": "assistant",
+          "content": "Will researchers need per-vehicle detection or colour-classification confidence scores so they can exclude ambiguous cases, trigger manual review, or quantify result reliability in the paper?"
+        },
+        {
+          "role": "assistant",
+          "content": "LOW"
+        }
+      ],
+      "likelihood": "LOW"
+    }
+  },
+  "risk_assessment": {
+    "classification": {
+      "misclassification": {
+        "risk": {
+          "name": "Misclassification",
+          "description": "Misclassification leading to incorrect downstream decisions",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "overconfidence": {
+        "risk": {
+          "name": "Overconfidence",
+          "description": "Overconfident assignment of class labels despite weak evidence",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "ood": {
+        "risk": {
+          "name": "Out-of-Distribution Error",
+          "description": "Forced categorisation when the input does not fit any valid class well",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "MODERATE|LOW"
+          }
+        ],
+        "impact": "MODERATE",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "instability": {
+        "risk": {
+          "name": "Instability",
+          "description": "Instability around decision boundaries causing inconsistent outcomes",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "equivalence": {
+        "risk": {
+          "name": "Misleading Equivalence",
+          "description": "Harm from reducing nuanced states to coarse categorical outputs",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      }
+    },
+    "localisation": {
+      "imprecision": {
+        "risk": {
+          "name": "Imprecision",
+          "description": "False detection of targets or events that are not present",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "MODERATE|LOW"
+          }
+        ],
+        "impact": "MODERATE",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "poor-recall": {
+        "risk": {
+          "name": "Poor Recall",
+          "description": "Failure to detect a relevant target or event",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "MODERATE|LOW"
+          }
+        ],
+        "impact": "MODERATE",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "mislocalisation": {
+        "risk": {
+          "name": "Mislocalisation",
+          "description": "Incorrect localisation or boundary placement leading to action on the wrong area",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "duplication": {
+        "risk": {
+          "name": "Duplication",
+          "description": "Duplicate detections that distort downstream counting or response",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|MODERATE"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "MODERATE",
+        "status": "assessed"
+      },
+      "fragmentation": {
+        "risk": {
+          "name": "Fragmentation",
+          "description": "Fragmented detections that distort downstream counting or response",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "MODERATE|LOW"
+          }
+        ],
+        "impact": "MODERATE",
+        "likelihood": "LOW",
+        "status": "assessed"
+      }
+    },
+    "segmentation": {
+      "boundary-error": {
+        "risk": {
+          "name": "Boundary Error",
+          "description": "Incorrect partition boundaries that distort later interpretation or action",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "over-segmentation": {
+        "risk": {
+          "name": "Over-Segmentation",
+          "description": "Over-segmentation splitting coherent units into misleading fragments",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "under-segmentation": {
+        "risk": {
+          "name": "Under-Segmentation",
+          "description": "Under-segmentation merging distinct units that should remain separate",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "misrepresentation": {
+        "risk": {
+          "name": "Misrepresentation",
+          "description": "Boundary ambiguity being hidden behind crisp-looking partitions",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      },
+      "overconfidence": {
+        "risk": {
+          "name": "Overconfidence",
+          "description": "Downstream over-reliance on partitions as though they were objective ground truth",
+          "markers": [],
+          "examples": []
+        },
+        "survey": [
+          {
+            "role": "assistant",
+            "content": "Will researchers use the segmentation outputs directly as evidence in the paper without routine manual validation or exclusion of low-confidence and ambiguous vehicle or colour cases?"
+          },
+          {
+            "role": "assistant",
+            "content": "LOW|LOW"
+          }
+        ],
+        "impact": "LOW",
+        "likelihood": "LOW",
+        "status": "assessed"
+      }
+    }
+  },
+  "history": [],
+  "status": "COMPLETED",
+  "initiated_by": "Richard Fallon"
+}

@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom';
 import { AppCard } from '../../../components/ui/AppCard';
 import { AppCTAButtonLink } from '../../../components/ui/AppCTAButton';
 import { AppTable } from '../../../components/ui/AppTable';
@@ -34,7 +34,12 @@ function domainLabel(domain: DomainKey): string {
 
 export function DomainPage() {
   const params = useParams();
+  const [searchParams] = useSearchParams();
   const domain = useMemo(() => (isDomainKey(params.domainKey) ? params.domainKey : null), [params.domainKey]);
+  const assessmentId = searchParams.get('assessmentId') ?? '';
+  const backTo = assessmentId
+    ? `/assessments/new?assessmentId=${encodeURIComponent(assessmentId)}`
+    : '/assessments/new';
 
   const [refs, setRefs] = useState<{ id: string; kind: 'website' | 'document'; value: string; createdAt: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -95,7 +100,7 @@ export function DomainPage() {
           title="Domain"
           description="Unknown domain. Please select a valid domain."
           actions={
-            <Button component={RouterLink} to="/assessments/new" variant="outlined" size="small">
+            <Button component={RouterLink} to={backTo} variant="outlined" size="small">
               Back
             </Button>
           }
@@ -114,23 +119,39 @@ export function DomainPage() {
       <PageHeader
         title={`${domainLabel(domain)} Domain`}
         description={
-          isFirebaseConfigured()
-            ? 'Define the area of activity or assets where related risks are grouped and evaluated together. Use this to shape your risk governance approach for systems.'
-            : 'Maintain reference sources for this domain. Stored locally until persistence is connected.'
+          isFirebaseConfigured() ? (
+            <>
+              A domain represents the area of activity and assets where related risks are grouped and evaluated
+              together.
+              <br />
+              <br />
+              Here you can view and edit the key authoritative references that will shape your domain.
+              <br />
+              <br />
+              A well crafted domain is essential to define your risk governance approach for systems you are
+              building yourself, or procuring.
+            </>
+          ) : (
+            'Maintain reference sources for this domain. Stored locally until persistence is connected.'
+          )
         }
         actions={
           <>
-            <Button component={RouterLink} to="/assessments/new" variant="outlined" size="small">
+            <Button component={RouterLink} to={backTo} variant="outlined" size="small">
               Back
             </Button>
             <Box sx={appCtaButtonTrackSx}>
               <AppCTAButtonLink
                 variant="contained"
                 fullWidth
-                to={`/domains/${domain}/references/new`}
+                to={
+                  assessmentId
+                    ? `/domains/${domain}/references/new?assessmentId=${encodeURIComponent(assessmentId)}`
+                    : `/domains/${domain}/references/new`
+                }
                 state={{ domainId }}
               >
-                Add Authorative Reference
+                Add Authoritative Reference
               </AppCTAButtonLink>
             </Box>
           </>
@@ -139,7 +160,7 @@ export function DomainPage() {
 
       <AppCard>
         <Typography variant="h6" component="h2" sx={{ mb: 1.5 }}>
-          Authorative References
+          Authoritative References
         </Typography>
 
         {loadError ? (

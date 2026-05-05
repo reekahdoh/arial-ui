@@ -28,10 +28,11 @@ export function RiskAssessmentOvalSection({
   const titleRowSx = {
     display: 'flex',
     alignItems: 'baseline',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     flexWrap: 'nowrap',
-    gap: 1,
+    gap: 2,
     minWidth: 0,
+    width: '100%',
     ...riskAssessmentOvalSectionTitleSx(!!description),
   };
 
@@ -48,7 +49,13 @@ export function RiskAssessmentOvalSection({
           <Typography
             variant="subtitle1"
             component="h2"
-            sx={{ minWidth: 0, width: 'max-content', flexShrink: 0 }}
+            sx={{
+              minWidth: 0,
+              flex: '1 1 auto',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
           >
             {title}
           </Typography>

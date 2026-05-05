@@ -1,16 +1,6 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Divider,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Divider, TextField, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppCTAButton } from '../../../components/ui/AppCTAButton';
 import { AppCard } from '../../../components/ui/AppCard';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -27,16 +17,22 @@ import {
   writeDomainReferences,
   type ReferenceKind,
 } from '../domainReferencesStorage';
-import { appCtaButton, appCtaButtonTrackSx } from '../../../theme/tokens';
+import { appCtaButtonTrackSx } from '../../../theme/tokens';
+
+const referenceTypePillSx = {
+  flex: 1,
+  minWidth: 0,
+  py: 1.25,
+  px: 2,
+  borderRadius: 9999,
+  textTransform: 'none',
+  fontWeight: 600,
+} as const;
 
 type DomainKey = 'ai' | 'who';
 
 function isDomainKey(value: unknown): value is DomainKey {
   return value === 'ai' || value === 'who';
-}
-
-function domainLabel(domain: DomainKey): string {
-  return domain === 'ai' ? 'AI' : 'WHO';
 }
 
 function isValidHttpUrl(value: string): boolean {
@@ -58,9 +54,18 @@ export function NewAuthorativeReferencePage() {
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const domain = useMemo(() => (isDomainKey(params.domainKey) ? params.domainKey : null), [params.domainKey]);
-  const backTo = domain ? `/domains/${domain}` : '/assessments/new';
+  const assessmentId = searchParams.get('assessmentId') ?? '';
+  const riskAssessmentBackTo = assessmentId
+    ? `/assessments/new?assessmentId=${encodeURIComponent(assessmentId)}`
+    : '/assessments/new';
+  const backTo = domain
+    ? assessmentId
+      ? `/domains/${domain}?assessmentId=${encodeURIComponent(assessmentId)}`
+      : `/domains/${domain}`
+    : riskAssessmentBackTo;
 
   const [domainId, setDomainId] = useState<string | null>(() => {
     const raw = (location.state as { domainId?: unknown } | null)?.domainId;
@@ -138,10 +143,10 @@ export function NewAuthorativeReferencePage() {
     return (
       <>
         <PageHeader
-          title="New Authorative Reference"
+          title="New Authoritative Reference"
           description="Unknown domain. Please navigate from a specific domain page."
           actions={
-            <Button component={RouterLink} to="/assessments/new" variant="outlined" size="small">
+            <Button component={RouterLink} to={riskAssessmentBackTo} variant="outlined" size="small">
               Back
             </Button>
           }
@@ -158,18 +163,19 @@ export function NewAuthorativeReferencePage() {
   return (
     <>
       <PageHeader
-        title="New Authorative Reference"
-        description={`Add a website URL or select a document for the ${domainLabel(domain)} domain.`}
+        title="New Authoritative Reference"
+        description={
+          <>
+            Here you can add an Authoritative Reference, either from a website or a local document.
+            <br />
+            <br />
+            These Authoritative References will help define your domain, so be sure to include any mandatory
+            regulations and compliance documentation.
+          </>
+        }
         actions={
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Button
-              component={RouterLink}
-              to={backTo}
-              variant="outlined"
-              color="primary"
-              size={appCtaButton.muiSize}
-              sx={appCtaButton.sx}
-            >
+          <>
+            <Button component={RouterLink} to={backTo} variant="outlined" size="small">
               Cancel
             </Button>
             <Box sx={appCtaButtonTrackSx}>
@@ -182,7 +188,7 @@ export function NewAuthorativeReferencePage() {
                 {saving ? 'Saving…' : 'Save'}
               </AppCTAButton>
             </Box>
-          </Box>
+          </>
         }
       />
 
@@ -198,10 +204,28 @@ export function NewAuthorativeReferencePage() {
             title="Reference type"
             description="Choose whether this source is a file on your computer or a link on the web."
           >
-            <RadioGroup row value={kind} onChange={(e) => setKind(e.target.value as ReferenceKind)}>
-              <FormControlLabel value="document" control={<Radio />} label="Document" />
-              <FormControlLabel value="website" control={<Radio />} label="Website URL" />
-            </RadioGroup>
+            <Box sx={{ display: 'flex', gap: 1.5, width: '100%' }}>
+              <Button
+                type="button"
+                variant={kind === 'document' ? 'contained' : 'outlined'}
+                color="primary"
+                disabled={saving}
+                onClick={() => setKind('document')}
+                sx={referenceTypePillSx}
+              >
+                Document
+              </Button>
+              <Button
+                type="button"
+                variant={kind === 'website' ? 'contained' : 'outlined'}
+                color="primary"
+                disabled={saving}
+                onClick={() => setKind('website')}
+                sx={referenceTypePillSx}
+              >
+                Website
+              </Button>
+            </Box>
           </RiskAssessmentOvalSection>
 
           {kind === 'document' ? (
