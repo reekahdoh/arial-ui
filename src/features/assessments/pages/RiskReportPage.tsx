@@ -1,6 +1,11 @@
 import {
   Alert,
   Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Table,
   TableBody,
   TableCell,
@@ -14,9 +19,14 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { AppCard } from '../../../components/ui/AppCard';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import {
+  buildBackendAssessmentReportUrl,
   buildBackendAssessmentUrl,
+  fetchBackendAssessmentReport,
+  generateBackendAssessmentReport,
   fetchBackendAssessmentById,
 } from '../../../services/assessments/backendAssessments';
+import { useAuth } from '../../../contexts/AuthContext';
+import { resolveAuthenticatedUsername } from '../../../services/auth/resolveAuthenticatedUsername';
 
 type RiskReportPayload = {
   assessmentId: string;
@@ -35,6 +45,7 @@ type ReportDocument = {
   name?: unknown;
   description?: unknown;
   requirement_summary?: unknown;
+  requirementSummary?: unknown;
   scope?: unknown;
   risk_assessment?: unknown;
 };
@@ -60,6 +71,7 @@ type OverallRiskAssessment = {
   description: string | null;
   impact: string | null;
   likelihood: string | null;
+  mitigations: string[];
 };
 
 type ReportSource = {
@@ -67,6 +79,15 @@ type ReportSource = {
   completedAt: string | null;
   error: string | null;
   isLoading: boolean;
+};
+
+type DetailedReportState = {
+  error: string | null;
+  hasReport: boolean;
+  isChecking: boolean;
+  isGenerating: boolean;
+  success: string | null;
+  viewUrl: string | null;
 };
 
 function stringFromUnknown(value: unknown): string | null {
@@ -190,7 +211,8 @@ function looksLikeReportDocument(value: unknown): value is ReportDocument {
     ('risk_assessment' in value ||
       'scope' in value ||
       'name' in value ||
-      'requirement_summary' in value)
+      'requirement_summary' in value ||
+      'requirementSummary' in value)
   );
 }
 
@@ -202,6 +224,52 @@ function completedAtFromAssessmentPayload(data: unknown): string | null {
     stringFromUnknown(data.updated_at) ??
     stringFromUnknown(data.updatedAt)
   );
+}
+
+function requirementSummaryPayloadFromReportDocument(reportDocument: ReportDocument | null): unknown {
+  if (!reportDocument) return null;
+  return reportDocument.requirement_summary ?? reportDocument.requirementSummary;
+}
+
+function requirementSummaryFromReportDocument(reportDocument: ReportDocument | null): string | null {
+  const requirementSummary = requirementSummaryPayloadFromReportDocument(reportDocument);
+  const summaryText = stringFromUnknown(requirementSummary);
+  if (summaryText) return summaryText;
+
+  if (!isRecord(requirementSummary)) return null;
+  return stringFromUnknown(requirementSummary.summary);
+}
+
+function requirementContradictionsFromReportDocument(reportDocument: ReportDocument | null): string[] {
+  const requirementSummary = requirementSummaryPayloadFromReportDocument(reportDocument);
+  if (!isRecord(requirementSummary)) return [];
+
+  const contradictionsOrTensions = requirementSummary.contradictions_or_tensions;
+  if (Array.isArray(contradictionsOrTensions)) {
+    return contradictionsOrTensions.flatMap((contradiction) => {
+      const text = stringFromUnknown(contradiction);
+      return text ? [text] : [];
+    });
+  }
+
+  const text = stringFromUnknown(contradictionsOrTensions);
+  return text ? [text] : [];
+}
+
+function requirementGapsFromReportDocument(reportDocument: ReportDocument | null): string[] {
+  const requirementSummary = requirementSummaryPayloadFromReportDocument(reportDocument);
+  if (!isRecord(requirementSummary)) return [];
+
+  const missingInformation = requirementSummary.missing_information;
+  if (Array.isArray(missingInformation)) {
+    return missingInformation.flatMap((gap) => {
+      const text = stringFromUnknown(gap);
+      return text ? [text] : [];
+    });
+  }
+
+  const text = stringFromUnknown(missingInformation);
+  return text ? [text] : [];
 }
 
 function reportDocumentFromAssessmentPayload(data: unknown, raw: string): ReportDocument | null {
@@ -241,7 +309,13 @@ async function fetchBackendAssessmentWithBetterNetworkError(
 }
 
 function getReportDocument(report: RiskReportPayload): ReportDocument | null {
-  if (isRecord(report.response) && ('name' in report.response || 'risk_assessment' in report.response)) {
+  if (
+    isRecord(report.response) &&
+    ('name' in report.response ||
+      'risk_assessment' in report.response ||
+      'requirement_summary' in report.response ||
+      'requirementSummary' in report.response)
+  ) {
     return report.response;
   }
 
@@ -309,6 +383,7 @@ function getOverallRiskAssessments(reportDocument: ReportDocument): OverallRiskA
         description: stringFromUnknown(risk?.description),
         impact: normalizeAssessmentLevel(riskEntry.impact),
         likelihood: normalizeAssessmentLevel(riskEntry.likelihood),
+        mitigations: stringsFromUnknownList(riskEntry.mitigations),
       });
     }
   }
@@ -335,6 +410,18 @@ function getHighRiskAssessments(reportDocument: ReportDocument): HighRiskSummary
   }
 
   return highRisks;
+}
+
+function stringsFromUnknownList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      const text = stringFromUnknown(item);
+      return text ? [text] : [];
+    });
+  }
+
+  const text = stringFromUnknown(value);
+  return text ? [text] : [];
 }
 
 function getScopeAssessmentsByLikelihood(
@@ -404,6 +491,7 @@ function readStoredRiskReport(assessmentId: string): RiskReportPayload | null {
 
 export function RiskReportPage() {
   const location = useLocation();
+  const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const [apiReport, setApiReport] = useState<ReportSource>({
     document: null,
@@ -411,6 +499,16 @@ export function RiskReportPage() {
     error: null,
     isLoading: false,
   });
+  const [detailedReport, setDetailedReport] = useState<DetailedReportState>({
+    error: null,
+    hasReport: false,
+    isChecking: false,
+    isGenerating: false,
+    success: null,
+    viewUrl: null,
+  });
+  const [selectedMitigationRisk, setSelectedMitigationRisk] =
+    useState<OverallRiskAssessment | null>(null);
   const locationState = location.state as LocationState | null;
   const assessmentId =
     stringFromUnknown(locationState?.assessmentId) ?? searchParams.get('assessmentId')?.trim() ?? '';
@@ -423,7 +521,9 @@ export function RiskReportPage() {
   const reportName = stringFromUnknown(reportDocument?.name) ?? 'this assessment';
   const reportDescription = stringFromUnknown(reportDocument?.description) ?? 'No description provided';
   const requirementSummary =
-    stringFromUnknown(reportDocument?.requirement_summary) ?? 'the requirements in this assessment';
+    requirementSummaryFromReportDocument(reportDocument) ?? 'the requirements in this assessment';
+  const requirementContradictions = requirementContradictionsFromReportDocument(reportDocument);
+  const requirementGaps = requirementGapsFromReportDocument(reportDocument);
   const overallRiskAssessments = reportDocument ? getOverallRiskAssessments(reportDocument) : [];
   const highestPriorityRisks = reportDocument ? getHighestPriorityRisks(reportDocument) : [];
   const lowerPriorityRisks = reportDocument
@@ -490,16 +590,177 @@ export function RiskReportPage() {
     return () => controller.abort();
   }, [assessmentId]);
 
+  useEffect(() => {
+    const trimmedId = assessmentId.trim();
+    if (!trimmedId || authLoading || !user) {
+      setDetailedReport((prev) => ({
+        ...prev,
+        hasReport: false,
+        isChecking: false,
+        success: null,
+        viewUrl: null,
+      }));
+      return;
+    }
+
+    const controller = new AbortController();
+    let cancelled = false;
+    setDetailedReport((prev) => ({
+      ...prev,
+      error: null,
+      hasReport: false,
+      isChecking: true,
+      success: null,
+      viewUrl: null,
+    }));
+
+    void (async () => {
+      try {
+        const userId = await resolveAuthenticatedUsername(user);
+        if (cancelled) return;
+
+        const result = await fetchBackendAssessmentReport(trimmedId, { userId }, controller.signal);
+        const hasReport = result.ok && Boolean(result.raw || result.data);
+        if (cancelled || controller.signal.aborted) return;
+
+        setDetailedReport((prev) => ({
+          ...prev,
+          hasReport,
+          isChecking: false,
+          viewUrl: hasReport ? buildBackendAssessmentReportUrl(trimmedId, userId) : null,
+        }));
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        if (cancelled || controller.signal.aborted) return;
+        setDetailedReport((prev) => ({
+          ...prev,
+          hasReport: false,
+          isChecking: false,
+          viewUrl: null,
+        }));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [assessmentId, authLoading, user]);
+
+  async function generateDetailedReport() {
+    const trimmedId = assessmentId.trim();
+    if (!trimmedId) {
+      setDetailedReport({
+        error: 'Cannot generate a detailed report: missing assessment id.',
+        hasReport: false,
+        isChecking: false,
+        isGenerating: false,
+        success: null,
+        viewUrl: null,
+      });
+      return;
+    }
+    if (!user) {
+      setDetailedReport({
+        error: 'Cannot generate a detailed report: missing authenticated user.',
+        hasReport: false,
+        isChecking: false,
+        isGenerating: false,
+        success: null,
+        viewUrl: null,
+      });
+      return;
+    }
+
+    const controller = new AbortController();
+    setDetailedReport((prev) => ({ ...prev, error: null, isGenerating: true, success: null }));
+
+    try {
+      const userId = await resolveAuthenticatedUsername(user);
+      const result = await generateBackendAssessmentReport(trimmedId, { userId }, controller.signal);
+      if (!result.ok) {
+        throw new Error(`Detailed report returned ${result.status}: ${result.raw || '(empty response)'}`);
+      }
+
+      setDetailedReport({
+        error: null,
+        hasReport: true,
+        isChecking: false,
+        isGenerating: false,
+        success: 'Detailed report generated.',
+        viewUrl: buildBackendAssessmentReportUrl(trimmedId, userId),
+      });
+    } catch (err) {
+      console.error('Detailed report could not be generated.', {
+        assessmentId: trimmedId,
+        error: err,
+      });
+      setDetailedReport((prev) => ({
+        ...prev,
+        error: err instanceof Error ? err.message : 'Detailed report could not be generated.',
+        isGenerating: false,
+        success: null,
+      }));
+    }
+  }
+
+  function viewDetailedReport() {
+    if (!detailedReport.viewUrl) return;
+    window.open(detailedReport.viewUrl, '_blank', 'noopener,noreferrer');
+  }
+
   return (
     <>
       <PageHeader
         title="Your Risk Report"
-        description="Here is your risk assessment."
+        description={
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'stretch', sm: 'center' },
+              justifyContent: 'space-between',
+              gap: 1.5,
+            }}
+          >
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1rem', lineHeight: 1.45 }}>
+              Here is your risk assessment overview.
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 1.5 }}>
+              <Button
+                variant="contained"
+                onClick={generateDetailedReport}
+                disabled={
+                  !assessmentId.trim() ||
+                  authLoading ||
+                  detailedReport.isChecking ||
+                  detailedReport.isGenerating ||
+                  detailedReport.hasReport
+                }
+              >
+                {detailedReport.isGenerating ? 'Generating...' : 'Generate Detailed Report'}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={viewDetailedReport}
+                disabled={!detailedReport.hasReport || !detailedReport.viewUrl}
+              >
+                View Report
+              </Button>
+            </Box>
+          </Box>
+        }
         descriptionVariant="body1"
         descriptionSx={{ fontSize: '1rem', lineHeight: 1.45 }}
       />
       <AppCard>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, py: 2 }}>
+          {detailedReport.error ? (
+            <Alert severity="error">{detailedReport.error}</Alert>
+          ) : null}
+          {detailedReport.success ? (
+            <Alert severity="success">{detailedReport.success}</Alert>
+          ) : null}
           {!assessmentId.trim() ? (
             <Alert severity="warning">
               No assessment was specified. Open this page from an assessment to view its risk report.
@@ -568,11 +829,67 @@ export function RiskReportPage() {
                 }}
               >
                 <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
-                  Requirements
+                  Requirements Summary
                 </Typography>
                 <Typography variant="body1" sx={{ fontSize: '1.125rem' }}>
                   {requirementSummary}
                 </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  px: 2,
+                  py: 1.25,
+                  bgcolor: 'surface.inset',
+                }}
+              >
+                <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+                  Requirements Contradictions
+                </Typography>
+                {requirementContradictions.length > 0 ? (
+                  <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                    {requirementContradictions.map((contradiction) => (
+                      <Box component="li" key={contradiction} sx={{ mb: 0.75 }}>
+                        <Typography variant="body1" component="span" sx={{ fontSize: '1.125rem' }}>
+                          {contradiction}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : null}
+              </Box>
+
+              <Box
+                sx={{
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  px: 2,
+                  py: 1.25,
+                  bgcolor: 'surface.inset',
+                }}
+              >
+                <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+                  Gaps in Requirements
+                </Typography>
+                {requirementGaps.length > 0 ? (
+                  <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                    {requirementGaps.map((gap) => (
+                      <Box component="li" key={gap} sx={{ mb: 0.75 }}>
+                        <Typography variant="body1" component="span" sx={{ fontSize: '1.125rem' }}>
+                          {gap}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body1" sx={{ fontSize: '1.125rem' }}>
+                    No gaps in requirements provided.
+                  </Typography>
+                )}
               </Box>
 
               <Box
@@ -599,6 +916,7 @@ export function RiskReportPage() {
                           <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
                           <TableCell sx={{ fontWeight: 700 }}>Impact</TableCell>
                           <TableCell sx={{ fontWeight: 700 }}>Likelihood</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Mitigations</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -611,6 +929,16 @@ export function RiskReportPage() {
                             </TableCell>
                             <TableCell sx={getRiskLevelCellSx(risk.likelihood)}>
                               {risk.likelihood ?? 'UNKNOWN'}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="text"
+                                size="small"
+                                onClick={() => setSelectedMitigationRisk(risk)}
+                                disabled={risk.mitigations.length === 0}
+                              >
+                                {risk.mitigations.length > 0 ? 'View' : 'None'}
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -775,6 +1103,82 @@ export function RiskReportPage() {
           )}
         </Box>
       </AppCard>
+      <Dialog
+        open={Boolean(selectedMitigationRisk)}
+        onClose={() => setSelectedMitigationRisk(null)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Risk Mitigations</DialogTitle>
+        <DialogContent>
+          {selectedMitigationRisk ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 0.5 }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                  gap: 1.5,
+                }}
+              >
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+                    Risk Name
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                    {selectedMitigationRisk.name}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+                    Description
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedMitigationRisk.description ?? 'Not provided'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+                    Impact
+                  </Typography>
+                  <Typography variant="body1">{selectedMitigationRisk.impact ?? 'UNKNOWN'}</Typography>
+                </Box>
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+                    Likelihood
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedMitigationRisk.likelihood ?? 'UNKNOWN'}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box>
+                <Typography variant="h6" component="h3">
+                  Mitigations
+                </Typography>
+                {selectedMitigationRisk.mitigations.length > 0 ? (
+                  <Box component="ul" sx={{ m: 0, mt: 1, pl: 2.5 }}>
+                    {selectedMitigationRisk.mitigations.map((mitigation, index) => (
+                      <Box component="li" key={`${selectedMitigationRisk.key}:${index}`} sx={{ mb: 1 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {mitigation}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    No mitigations were provided for this risk.
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+          ) : null}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSelectedMitigationRisk(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

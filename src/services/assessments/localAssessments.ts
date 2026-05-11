@@ -1,5 +1,5 @@
 import type { AssessmentSummary } from '../../domain/assessment';
-import type { CustomerContextFields } from '../../domain/customerContext';
+import type { ProjectRequirementsFields } from '../../domain/projectRequirements';
 
 const STORAGE_KEY = 'aira.assessments';
 
@@ -9,7 +9,8 @@ export interface LocalAssessmentDraftFields {
   riskOwner?: string;
   companyName: string;
   domain: 'ai' | 'who';
-  customerContext?: CustomerContextFields;
+  backendAssessmentId?: string;
+  customerContext?: ProjectRequirementsFields;
 }
 
 export interface LocalAssessmentRecord extends AssessmentSummary {
@@ -28,7 +29,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object';
 }
 
-function isCustomerContextFields(value: unknown): value is CustomerContextFields {
+function isProjectRequirementsFields(value: unknown): value is ProjectRequirementsFields {
   if (!isRecord(value)) return false;
   const fn = value.fileName;
   const fm = value.fileMeta;
@@ -61,7 +62,8 @@ function isLocalAssessmentRecord(value: unknown): value is LocalAssessmentRecord
     (draft.riskOwner === undefined || typeof draft.riskOwner === 'string') &&
     typeof draft.companyName === 'string' &&
     (draft.domain === 'ai' || draft.domain === 'who') &&
-    (draft.customerContext === undefined || isCustomerContextFields(draft.customerContext))
+    (draft.backendAssessmentId === undefined || typeof draft.backendAssessmentId === 'string') &&
+    (draft.customerContext === undefined || isProjectRequirementsFields(draft.customerContext))
   );
 }
 

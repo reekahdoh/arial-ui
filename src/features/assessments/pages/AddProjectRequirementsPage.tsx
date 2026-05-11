@@ -14,17 +14,18 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppCTAButton, AppCTAButtonLink } from '../../../components/ui/AppCTAButton';
 import { AppCard } from '../../../components/ui/AppCard';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { appCtaButtonTrackSx } from '../../../theme/tokens';
-import type { CustomerContextFields } from '../../../domain/customerContext';
-import { emptyCustomerContext, normalizeCustomerContext } from '../../../domain/customerContext';
+import type { ProjectRequirementsFields } from '../../../domain/projectRequirements';
+import { emptyProjectRequirements, normalizeProjectRequirements } from '../../../domain/projectRequirements';
 import {
-  loadCustomerContext,
-  persistCustomerContext,
-} from '../../../services/assessments/customerContextPersistence';
+  loadProjectRequirements,
+  persistProjectRequirements,
+} from '../../../services/assessments/projectRequirementsPersistence';
+import { setProjectRequirementsFile } from '../projectRequirementsFileCache';
 function isValidHttpUrl(value: string): boolean {
   try {
     const url = new URL(value);
@@ -63,7 +64,7 @@ const CONTEXT_TYPE_TILES: ReadonlyArray<{
   { id: 'text', label: 'Text', Icon: TextFields },
 ];
 
-function supportingContextRows(saved: CustomerContextFields): Array<{ id: ContextSectionId; type: string; details: string }> {
+function supportingContextRows(saved: ProjectRequirementsFields): Array<{ id: ContextSectionId; type: string; details: string }> {
   const rows: Array<{ id: ContextSectionId; type: string; details: string }> = [];
   const docLine = (saved.fileMeta ?? saved.fileName)?.trim();
   if (docLine) {
@@ -81,7 +82,8 @@ function supportingContextRows(saved: CustomerContextFields): Array<{ id: Contex
   return rows;
 }
 
-export function AddCustomerContextPage() {
+export function AddProjectRequirementsPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const assessmentId = searchParams.get('assessmentId') ?? '';
 
@@ -89,8 +91,9 @@ export function AddCustomerContextPage() {
     ? `/assessments/new?assessmentId=${encodeURIComponent(assessmentId)}`
     : '/assessments/new';
 
-  const [ctx, setCtx] = useState<CustomerContextFields>(() => emptyCustomerContext());
-  const [baseline, setBaseline] = useState(() => JSON.stringify(emptyCustomerContext()));
+  const [ctx, setCtx] = useState<ProjectRequirementsFields>(() => emptyProjectRequirements());
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [baseline, setBaseline] = useState(() => JSON.stringify(emptyProjectRequirements()));
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -100,7 +103,7 @@ export function AddCustomerContextPage() {
 
   useEffect(() => {
     if (!assessmentId) {
-      const empty = emptyCustomerContext();
+      const empty = emptyProjectRequirements();
       setCtx(empty);
       setBaseline(JSON.stringify(empty));
       setLoadError(null);
@@ -110,13 +113,13 @@ export function AddCustomerContextPage() {
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
-    const clearing = emptyCustomerContext();
+    const clearing = emptyProjectRequirements();
     setCtx(clearing);
     setBaseline(JSON.stringify(clearing));
 
     void (async () => {
       try {
-        const loaded = await loadCustomerContext(assessmentId);
+        const loaded = await loadProjectRequirements(assessmentId);
         if (cancelled) return;
         setCtx(loaded);
         setBaseline(JSON.stringify(loaded));
@@ -137,11 +140,11 @@ export function AddCustomerContextPage() {
 
   const isDirty = useMemo(() => JSON.stringify(ctx) !== baseline, [ctx, baseline]);
 
-  const savedSnapshot = useMemo((): CustomerContextFields => {
+  const savedSnapshot = useMemo((): ProjectRequirementsFields => {
     try {
-      return normalizeCustomerContext(JSON.parse(baseline) as Partial<CustomerContextFields>);
+      return normalizeProjectRequirements(JSON.parse(baseline) as Partial<ProjectRequirementsFields>);
     } catch {
-      return emptyCustomerContext();
+      return emptyProjectRequirements();
     }
   }, [baseline]);
 
@@ -153,31 +156,41 @@ export function AddCustomerContextPage() {
 
   const canSave =
     !!assessmentId && !loading && !websiteUrlError && isDirty;
-
-  const save = () => {
-    if (!canSave) return;
+  const save = async (): Promise<boolean> => {
+    if (!canSave) return false;
     setSaving(true);
     setPersistError(null);
     setPersistInfo(null);
-    void (async () => {
-      const result = await persistCustomerContext(assessmentId, ctx);
+    try {
+      const result = await persistProjectRequirements(assessmentId, ctx);
       setSaving(false);
       if (!result.ok) {
         setPersistError(result.message);
-        return;
+        return false;
       }
       setBaseline(JSON.stringify(ctx));
       setPersistInfo('Saved.');
-    })();
+      if (selectedFile) {
+        setProjectRequirementsFile(assessmentId, selectedFile);
+      }
+      navigate(`/assessments/new?assessmentId=${encodeURIComponent(assessmentId)}`, {
+        state: selectedFile ? { projectRequirementsFile: selectedFile } : undefined,
+      });
+      return true;
+    } catch (err) {
+      setSaving(false);
+      setPersistError(err instanceof Error ? err.message : 'Failed to save project requirements');
+      return false;
+    }
   };
 
   return (
     <>
       <PageHeader
-        title="Add Customer Context"
+        title="Add Project Requirements"
         description={
           <>
-            Customer Context is effectively the requirements of your project.
+            Project Requirements capture what your project needs to achieve.
             <br />
             <br />• What is it that you need your solution to do?
             <br />• Why are you bringing this into your organisation?
@@ -371,6 +384,7 @@ export function AddCustomerContextPage() {
                     onChange={(e) => {
                       const next = e.target.files?.[0] ?? null;
                       if (!next) return;
+                      setSelectedFile(next);
                       setCtx((c) => ({
                         ...c,
                         fileName: next.name,
@@ -385,7 +399,10 @@ export function AddCustomerContextPage() {
                     <Button
                       variant="text"
                       size="small"
-                      onClick={() => setCtx((c) => ({ ...c, fileName: null, fileMeta: null }))}
+                      onClick={() => {
+                        setSelectedFile(null);
+                        setCtx((c) => ({ ...c, fileName: null, fileMeta: null }));
+                      }}
                     >
                       Clear
                     </Button>
@@ -479,7 +496,7 @@ export function AddCustomerContextPage() {
                 Write your requirements below, or just add extra context about your project here.
               </Typography>
               <TextField
-                label="Customer context text"
+                label="Project requirements text"
                 value={ctx.freeformText}
                 onChange={(e) => setCtx((c) => ({ ...c, freeformText: e.target.value }))}
                 placeholder="Paste or type customer notes, background, constraints, or other context"

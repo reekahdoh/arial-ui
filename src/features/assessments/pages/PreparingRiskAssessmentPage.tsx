@@ -5,11 +5,11 @@ import {
   Alert,
   Box,
   Button,
+  LinearProgress,
   TextField,
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { AppCard } from '../../../components/ui/AppCard';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { useCallback, useEffect, useState } from 'react';
@@ -28,6 +28,9 @@ type AssessmentAiJson = {
   history: { role: string; content: string }[];
   chat_stage: string;
   turn_type: string;
+  progress?: unknown;
+  progress_percentage?: unknown;
+  percentage?: unknown;
 };
 
 function buildAssessmentAiRequestUrl(assessmentId: string, userId: string, message?: string) {
@@ -75,6 +78,9 @@ async function postAssessmentAiJson(
 
 const IDENTIFYING_STAGE = 'identifying-ais';
 const IDENTIFIED_STAGE = 'identified-ais';
+const REQUIREMENTS_POLL_DELAY_MS = 3000;
+const ANSWER_PROCESSING_STATUS =
+  "Thanks. Please be patient - there's a lot to do here.\n\nWe’re reviewing your response, and your requirements within the specified domain, to identify where AI can be used to meet your needs.";
 
 function normalizeChatStage(stage: string | null | undefined): string {
   return typeof stage === 'string' ? stage.trim().toLowerCase() : '';
@@ -82,6 +88,14 @@ function normalizeChatStage(stage: string | null | undefined): string {
 
 function isIdentifiedStage(stage: string | null | undefined): boolean {
   return normalizeChatStage(stage) === IDENTIFIED_STAGE;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isRequirementsProcessingResponse(status: number, raw: string): boolean {
+  return status === 417 && raw.toLowerCase().includes('requirements still being processed');
 }
 
 type AiIdResponseLogEntry = {
@@ -103,6 +117,26 @@ function stringFromUnknown(value: unknown): string | null {
   return null;
 }
 
+function progressPercentFromScore(value: unknown): number | null {
+  const parsed =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number.parseFloat(value.replace('%', '').trim())
+        : Number.NaN;
+
+  if (!Number.isFinite(parsed)) return null;
+  return Math.min(100, Math.max(0, parsed * 2));
+}
+
+function progressPercentFromResponse(data: AssessmentAiJson): number | null {
+  return (
+    progressPercentFromScore(data.progress) ??
+    progressPercentFromScore(data.progress_percentage) ??
+    progressPercentFromScore(data.percentage)
+  );
+}
+
 export function PreparingRiskAssessmentPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -118,8 +152,8 @@ export function PreparingRiskAssessmentPage() {
   const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
   const [aiStage, setAiStage] = useState<string | null>(null);
   const [chatId, setChatId] = useState<string | null>(null);
+  const [progressPercent, setProgressPercent] = useState<number | null>(null);
   const [isFirstResponseReady, setIsFirstResponseReady] = useState(false);
-  const [hasEnteredQa, setHasEnteredQa] = useState(false);
   const [aiIdResponseLog, setAiIdResponseLog] = useState<AiIdResponseLogEntry[]>([]);
 
   const appendAiIdLog = (entry: Omit<AiIdResponseLogEntry, 'key'>) => {
@@ -148,6 +182,7 @@ export function PreparingRiskAssessmentPage() {
   }, [assessmentId, navigate]);
 
   useEffect(() => {
+    const controller = new AbortController();
     let cancelled = false;
 
     void (async () => {
@@ -161,13 +196,18 @@ export function PreparingRiskAssessmentPage() {
 
         setStatus('Please wait whilst we prepare the materials...');
         const userId = await resolveAuthenticatedUsername(user);
-        const url = buildAssessmentAiRequestUrl(assessmentId, userId);
-        const { ok, status: httpStatus, data, raw } = await postAssessmentAiJson(
-          url,
-          new AbortController().signal,
-          { userId },
-        );
         if (cancelled) return;
+
+        const url = buildAssessmentAiRequestUrl(assessmentId, userId);
+        let response = await postAssessmentAiJson(url, controller.signal, { userId });
+        while (!cancelled && !response.ok && isRequirementsProcessingResponse(response.status, response.raw)) {
+          setStatus('Requirements are still being processed. Please wait...');
+          await delay(REQUIREMENTS_POLL_DELAY_MS);
+          if (cancelled) return;
+          response = await postAssessmentAiJson(url, controller.signal, { userId });
+        }
+        if (cancelled) return;
+        const { ok, status: httpStatus, data, raw } = response;
         if (!ok) {
           throw new Error(`assessment ai returned ${httpStatus}: ${raw || '(empty response)'}`);
         }
@@ -191,6 +231,7 @@ export function PreparingRiskAssessmentPage() {
 
         setAiStage(data.chat_stage);
         setQuestion(data.message || null);
+        setProgressPercent(progressPercentFromResponse(data));
         const resolvedChatId =
           typeof data.chat_id === 'string' && data.chat_id.trim() !== ''
             ? data.chat_id.trim()
@@ -200,6 +241,7 @@ export function PreparingRiskAssessmentPage() {
         setStatus('');
       } catch (err) {
         if (cancelled) return;
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
           setError(
             'Could not reach the API (network or CORS).',
@@ -212,6 +254,7 @@ export function PreparingRiskAssessmentPage() {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, [assessmentId, user]);
 
@@ -232,7 +275,7 @@ export function PreparingRiskAssessmentPage() {
     }
 
     setIsSubmittingAnswer(true);
-    setStatus('Processing your response');
+    setStatus(ANSWER_PROCESSING_STATUS);
     try {
       const controller = new AbortController();
       const userId = await resolveAuthenticatedUsername(user);
@@ -265,6 +308,7 @@ export function PreparingRiskAssessmentPage() {
 
       setAiStage(data.chat_stage);
       setQuestion(data.message || null);
+      setProgressPercent(progressPercentFromResponse(data));
       setAnswer('');
       setChatId((prev) => {
         if (prev && prev.trim() !== '') return prev;
@@ -434,7 +478,7 @@ export function PreparingRiskAssessmentPage() {
             </Alert>
           ) : null}
           {error || status.trim() !== '' ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
               {error ? 'Stopped.' : status}
             </Typography>
           ) : null}
@@ -443,7 +487,6 @@ export function PreparingRiskAssessmentPage() {
             <Button
               size="large"
               variant="contained"
-              startIcon={<PlayArrowIcon />}
               onClick={() => {
                 const sessionChatId = chatId?.trim();
                 if (!sessionChatId) {
@@ -458,25 +501,26 @@ export function PreparingRiskAssessmentPage() {
             </Button>
           ) : null}
 
-          {!error && isFirstResponseReady && !hasEnteredQa && !isIdentifiedStage(aiStage) ? (
-            <Button
-              size="large"
-              variant="contained"
-              startIcon={<PlayArrowIcon />}
-              onClick={() => {
-                setHasEnteredQa(true);
-                setStatus('');
-              }}
-              sx={{ mt: 1, px: 4, py: 1.5, borderRadius: 999 }}
-            >
-              Start
-            </Button>
-          ) : null}
-
-          {!error &&
-          hasEnteredQa &&
-          !isIdentifiedStage(aiStage) ? (
+          {!error && isFirstResponseReady && !isIdentifiedStage(aiStage) && !isSubmittingAnswer ? (
             <Box sx={{ width: '100%', maxWidth: 720, mt: 1 }}>
+              {progressPercent !== null ? (
+                <Box sx={{ width: '100%', mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                    <Typography variant="overline" color="text.secondary">
+                      Progress
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {Math.round(progressPercent)}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progressPercent}
+                    aria-label="Risk assessment preparation progress"
+                    sx={{ height: 8, borderRadius: 999 }}
+                  />
+                </Box>
+              ) : null}
               {question ? (
                 <Box
                   sx={{

@@ -1,0 +1,240 @@
+
+# AI Solution Risk Evaluation System (AI-RES)
+
+## 1. Purpose
+
+The system will assess, score, and continuously monitor the **organizational, legal, technical, operational, and ethical risk** of companies that are considering whether to:
+
+* **Buy** an AI solution (vendor product, SaaS, API)
+* **Build** an AI solution in-house
+* **Use** an AI capability inside an existing platform
+
+The system must produce:
+
+* A **quantified AI Risk Score**
+* A **risk classification** (Low / Moderate / High / Critical)
+* A **risk profile report** suitable for legal, compliance, security, and executive review
+* A **go/no-go recommendation** with mitigation actions
+
+---
+
+## 2. Core Principles
+
+The system must be designed around these realities:
+
+1. AI behavior is **non-deterministic**
+2. Risk comes primarily from **data, not code**
+3. AI risk **changes over time** (model drift, regulation, misuse)
+4. Vendor claims are **not trusted inputs** without verification
+5. AI risk is **context dependent** (same model, different use = different risk)
+
+---
+
+## 3. Risk Domains the System Must Evaluate
+
+### 3.1 Legal & Regulatory Risk
+
+The system shall evaluate:
+
+* Exposure to regulations such as:
+
+  * EU AI Act
+  * GDPR
+  * HIPAA
+  * CCPA
+* Whether the use case falls into **prohibited, high-risk, or regulated AI categories**
+* Data residency and cross-border processing
+* Intellectual property contamination risk from training data
+* Explainability requirements for automated decisions
+* Liability surface if the AI makes harmful or incorrect decisions
+
+---
+
+### 3.2 Data Risk
+
+The system shall determine:
+
+* Type of data used (PII, PHI, financial, proprietary, public)
+* Data ownership and licensing rights
+* Whether training data can legally be used for AI training
+* Risk of data leakage into model training (especially for SaaS APIs)
+* Data lineage and traceability
+* Ability to delete or retract data from models
+* Sensitivity classification of prompts and outputs
+
+---
+
+### 3.3 Model & Technical Risk
+
+The system shall assess:
+
+* Whether the model is:
+
+  * Deterministic vs probabilistic
+  * Explainable vs black-box
+* Model drift and update frequency
+* Hallucination likelihood for the use case
+* Prompt injection and adversarial input risk
+* Dependency on external APIs
+* Vendor model transparency
+* Ability to audit model behavior
+* Reproducibility of outputs
+* Security surface (prompt attacks, data exfiltration)
+
+---
+
+### 3.4 Vendor / Supply Chain Risk (for Buy/Use)
+
+The system shall evaluate:
+
+* Vendor AI governance maturity
+* Model training disclosures
+* SOC2 / ISO compliance
+* Data usage terms in contracts
+* Sub-processors and hidden model providers
+* Right to audit
+* Vendor lock-in risk
+* SLA for model behavior changes
+* Versioning guarantees
+
+---
+
+### 3.5 Operational Risk
+
+The system shall determine:
+
+* Human oversight requirements
+* Failure modes and blast radius
+* Monitoring capability for outputs
+* Incident response plan for AI failures
+* Rollback capability
+* Logging and traceability of AI decisions
+* User misuse potential inside the company
+
+---
+
+### 3.6 Ethical & Reputational Risk
+
+The system shall evaluate:
+
+* Bias and discrimination potential
+* Content generation risk (harmful, defamatory, unsafe)
+* Impact on customers and public perception
+* Workforce impact and decision automation risk
+* Use in sensitive domains (hiring, lending, healthcare, legal, policing)
+
+---
+
+## 4. System Functional Requirements
+
+### 4.1 Intake Questionnaire Engine
+
+The system shall provide a dynamic questionnaire that adapts based on:
+
+* Industry
+* Geography
+* AI use case
+* Build vs Buy vs Use
+
+---
+
+### 4.2 Risk Scoring Engine
+
+The system shall:
+
+* Assign weighted scores to each risk domain
+* Produce:
+
+  * Domain risk scores
+  * Composite AI Risk Score
+* Allow configurable weighting by organization
+
+---
+
+### 4.3 Use-Case Classification Engine
+
+The system shall map the proposed AI use case to regulatory categories such as those defined in the EU AI Act.
+
+---
+
+### 4.4 Evidence Collection Module
+
+The system shall require upload of:
+
+* Vendor contracts
+* Data flow diagrams
+* Architecture diagrams
+* Security attestations
+* Model documentation
+
+And validate completeness before scoring.
+
+---
+
+### 4.5 Continuous Monitoring
+
+The system shall not be a one-time assessment. It must:
+
+* Re-score risk when:
+
+  * Vendor updates model
+  * Regulations change
+  * Data sources change
+  * Use case changes
+* Alert stakeholders when risk classification changes
+
+---
+
+### 4.6 Explainable Risk Report Generator
+
+The system shall generate:
+
+* Executive summary
+* Legal/compliance report
+* Technical/security report
+* Required mitigations
+* Go / No-Go recommendation
+
+---
+
+## 5. Non-Functional Requirements
+
+* Enterprise grade security (RBAC, audit logs)
+* Evidence retention for legal defense
+* API access for GRC / compliance tools
+* Versioned assessments
+* Multi-tenant architecture
+* Full audit trail of scoring decisions
+
+---
+
+## 6. Output Artifacts
+
+For each assessment, the system shall produce:
+
+1. AI Risk Certificate
+2. Mitigation checklist
+3. Required governance controls
+4. Contract clause recommendations
+5. Monitoring checklist post-deployment
+
+---
+
+## 7. Differentiator (What makes this powerful)
+
+This system is not a questionnaire.
+
+It is a **decision-defense system**.
+It answers:
+
+> “If this AI system causes harm, can we prove we acted responsibly before adopting it?”
+
+That is what legal teams, boards, and insurers will care about.
+
+---
+
+If you want, next step I can help you design:
+
+* The **risk scoring model**
+* The **questionnaire tree**
+* Or the **system architecture** that would make this very defensible as a product.

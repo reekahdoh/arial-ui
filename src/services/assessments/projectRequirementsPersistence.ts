@@ -1,17 +1,17 @@
 import {
-  emptyCustomerContext,
-  normalizeCustomerContext,
-  type CustomerContextFields,
-} from '../../domain/customerContext';
+  emptyProjectRequirements,
+  normalizeProjectRequirements,
+  type ProjectRequirementsFields,
+} from '../../domain/projectRequirements';
 import { isFirebaseConfigured } from '../firebase';
 import { getLocalAssessment, upsertLocalAssessment } from './localAssessments';
-import { getRiskAssessment, patchRiskAssessmentCustomerContext } from './firestoreRiskAssessments';
+import { getRiskAssessment, patchRiskAssessmentProjectRequirements } from './firestoreRiskAssessments';
 
 /**
  * Merges local draft + Firestore (remote wins on overlap). Works offline-first when Firebase is off.
  */
-export async function loadCustomerContext(assessmentId: string): Promise<CustomerContextFields> {
-  let remote: Partial<CustomerContextFields> | undefined;
+export async function loadProjectRequirements(assessmentId: string): Promise<ProjectRequirementsFields> {
+  let remote: Partial<ProjectRequirementsFields> | undefined;
   if (isFirebaseConfigured()) {
     try {
       const r = await getRiskAssessment(assessmentId);
@@ -24,21 +24,21 @@ export async function loadCustomerContext(assessmentId: string): Promise<Custome
   const local = getLocalAssessment(assessmentId);
   const localPart = local?.draft.customerContext;
 
-  return normalizeCustomerContext({
-    ...emptyCustomerContext(),
+  return normalizeProjectRequirements({
+    ...emptyProjectRequirements(),
     ...localPart,
     ...remote,
   });
 }
 
-export type PersistCustomerContextResult =
+export type PersistProjectRequirementsResult =
   | { ok: true; cloudSynced: boolean }
   | { ok: false; message: string };
 
-export async function persistCustomerContext(
+export async function persistProjectRequirements(
   assessmentId: string,
-  fields: CustomerContextFields,
-): Promise<PersistCustomerContextResult> {
+  fields: ProjectRequirementsFields,
+): Promise<PersistProjectRequirementsResult> {
   const local = getLocalAssessment(assessmentId);
   const now = new Date().toISOString();
 
@@ -80,6 +80,6 @@ export async function persistCustomerContext(
     return { ok: true, cloudSynced: false };
   }
 
-  await patchRiskAssessmentCustomerContext(assessmentId, fields);
+  await patchRiskAssessmentProjectRequirements(assessmentId, fields);
   return { ok: true, cloudSynced: true };
 }

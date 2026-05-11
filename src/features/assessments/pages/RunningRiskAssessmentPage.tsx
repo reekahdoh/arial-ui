@@ -82,6 +82,8 @@ async function postAndReadTextWithBetterNetworkError(url: string, signal: AbortS
 
 const IDENTIFYING_STAGE = 'identifying-ais';
 const IDENTIFIED_STAGE = 'identified-ais';
+const ANSWER_PROCESSING_STATUS =
+  'Thanks, we’re analysing your answers against the Domain References to provide a clear Risk Result tailored for your project requirements.';
 
 export function PreparingRiskAssessmentPage() {
   const [status, setStatus] = useState('Starting…');
@@ -171,7 +173,7 @@ export function PreparingRiskAssessmentPage() {
     if (aiStage === IDENTIFIED_STAGE) return;
 
     setIsSubmittingAnswer(true);
-    setStatus('Processing your response');
+    setStatus(ANSWER_PROCESSING_STATUS);
     try {
       const controller = new AbortController();
       const url = buildAiIdRequestUrl(AI_ID_USER_ID, trimmed);
@@ -242,7 +244,7 @@ export function PreparingRiskAssessmentPage() {
             </Button>
           ) : null}
 
-          {!error && hasEnteredQa && aiStage !== IDENTIFIED_STAGE ? (
+          {!error && hasEnteredQa && aiStage !== IDENTIFIED_STAGE && !isSubmittingAnswer ? (
             <Box sx={{ width: '100%', maxWidth: 720, mt: 1 }}>
               {question ? (
                 <Box

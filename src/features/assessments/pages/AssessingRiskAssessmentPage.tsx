@@ -5,6 +5,7 @@ import {
   Alert,
   Box,
   Button,
+  LinearProgress,
   TextField,
   Typography,
 } from '@mui/material';
@@ -22,6 +23,9 @@ type AssessmentRiskJson = {
   chat_stage?: string;
   turn_type?: string;
   complete?: boolean;
+  progress?: unknown;
+  progress_percentage?: unknown;
+  percentage?: unknown;
 };
 
 type AssessmentRiskResult = {
@@ -69,6 +73,27 @@ function stringFromUnknown(value: unknown): string | null {
   if (typeof value === 'string' && value.trim()) return value.trim();
   if (typeof value === 'number') return String(value);
   return null;
+}
+
+function progressPercentFromValue(value: unknown): number | null {
+  const parsed =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number.parseFloat(value.replace('%', '').trim())
+        : Number.NaN;
+
+  if (!Number.isFinite(parsed)) return null;
+  return Math.min(100, Math.max(0, (parsed - 50) * 2));
+}
+
+function progressPercentFromResponse(data: AssessmentRiskJson | null): number | null {
+  if (!data) return null;
+  return (
+    progressPercentFromValue(data.progress) ??
+    progressPercentFromValue(data.progress_percentage) ??
+    progressPercentFromValue(data.percentage)
+  );
 }
 
 function getAssessmentRiskBaseUrl(assessmentId: string): string {
@@ -184,6 +209,7 @@ export function AssessingRiskAssessmentPage() {
   const [isComplete, setIsComplete] = useState(false);
   const [isFirstResponseReady, setIsFirstResponseReady] = useState(false);
   const [riskReport, setRiskReport] = useState<RiskReportPayload | null>(null);
+  const [progressPercent, setProgressPercent] = useState<number | null>(null);
   const [riskExchangeLog, setRiskExchangeLog] = useState<AssessmentRiskExchangeLogEntry[]>([]);
 
   const initialRiskStartedRef = useRef(false);
@@ -257,6 +283,8 @@ export function AssessingRiskAssessmentPage() {
       throw new Error(`assessment risk returned ${httpStatus}: ${raw || '(empty response)'}`);
     }
 
+    setProgressPercent(progressPercentFromResponse(data));
+
     if (isRiskComplete(data, raw)) {
       const report = {
         assessmentId: trimmedAssessmentId,
@@ -267,6 +295,7 @@ export function AssessingRiskAssessmentPage() {
       sessionStorage.setItem(getRiskReportStorageKey(trimmedAssessmentId), JSON.stringify(report));
       setRiskReport(report);
       setQuestion(null);
+      setProgressPercent(progressPercentFromResponse(data) ?? 100);
       setStatus('Risk assessment complete.');
       setIsComplete(true);
       return;
@@ -310,7 +339,9 @@ export function AssessingRiskAssessmentPage() {
 
     const controller = new AbortController();
     setIsSubmittingAnswer(true);
-    setStatus('Processing your response');
+    setStatus(
+      "Please be patient while we process your response.\n\nWe're looking to fully underdstand your requirements and the risks involved in using AI to meet those requirements.\n\nThis may take a few minutes.",
+    );
     try {
       await sendRiskAnswer(trimmed, controller.signal);
       setAnswer('');
@@ -485,7 +516,7 @@ export function AssessingRiskAssessmentPage() {
             </Alert>
           ) : null}
           {error || status.trim() !== '' ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
               {error ? 'Stopped.' : status}
             </Typography>
           ) : null}
@@ -502,8 +533,26 @@ export function AssessingRiskAssessmentPage() {
             </Button>
           ) : null}
 
-          {!error && isFirstResponseReady && !isComplete ? (
+          {!error && isFirstResponseReady && !isComplete && !isSubmittingAnswer ? (
             <Box sx={{ width: '100%', maxWidth: 720, mt: 1 }}>
+              {progressPercent !== null ? (
+                <Box sx={{ width: '100%', mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                    <Typography variant="overline" color="text.secondary">
+                      Progress
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {Math.round(progressPercent)}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progressPercent}
+                    aria-label="Risk assessment progress"
+                    sx={{ height: 8, borderRadius: 999 }}
+                  />
+                </Box>
+              ) : null}
               {question ? (
                 <Box
                   sx={{

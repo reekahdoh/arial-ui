@@ -1,6 +1,6 @@
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
-import type { CustomerContextFields } from '../../domain/customerContext';
-import { normalizeCustomerContext } from '../../domain/customerContext';
+import type { ProjectRequirementsFields } from '../../domain/projectRequirements';
+import { normalizeProjectRequirements } from '../../domain/projectRequirements';
 import { FIRESTORE_COLLECTION_RISK_ASSESSMENTS } from '../../constants/firestoreCollections';
 import { getFirebase, isFirebaseConfigured } from '../firebase';
 
@@ -21,13 +21,13 @@ export interface RiskAssessmentRead {
   companyName: string;
   domainId?: string;
   domainName?: string;
-  customerContext?: CustomerContextFields;
+  customerContext?: ProjectRequirementsFields;
 }
 
-function parseCustomerContextFromDoc(data: Record<string, unknown>): CustomerContextFields | undefined {
+function parseProjectRequirementsFromDoc(data: Record<string, unknown>): ProjectRequirementsFields | undefined {
   const raw = data.customerContext;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
-  return normalizeCustomerContext(raw as Partial<CustomerContextFields>);
+  return normalizeProjectRequirements(raw as Partial<ProjectRequirementsFields>);
 }
 
 export async function getRiskAssessment(id: string): Promise<RiskAssessmentRead | null> {
@@ -43,7 +43,7 @@ export async function getRiskAssessment(id: string): Promise<RiskAssessmentRead 
   if (typeof owner !== 'string' || typeof companyName !== 'string') return null;
   const name = typeof data.name === 'string' ? data.name : undefined;
   const riskOwner = typeof data.riskOwner === 'string' ? data.riskOwner : undefined;
-  const customerContext = parseCustomerContextFromDoc(data);
+  const projectRequirements = parseProjectRequirementsFromDoc(data);
 
   return {
     id: snap.id,
@@ -53,13 +53,13 @@ export async function getRiskAssessment(id: string): Promise<RiskAssessmentRead 
     companyName,
     ...(typeof data.domainId === 'string' ? { domainId: data.domainId } : {}),
     ...(typeof data.domainName === 'string' ? { domainName: data.domainName } : {}),
-    ...(customerContext ? { customerContext } : {}),
+    ...(projectRequirements ? { customerContext: projectRequirements } : {}),
   };
 }
 
-export async function patchRiskAssessmentCustomerContext(
+export async function patchRiskAssessmentProjectRequirements(
   id: string,
-  customerContext: CustomerContextFields,
+  projectRequirements: ProjectRequirementsFields,
 ): Promise<void> {
   if (!isFirebaseConfigured()) {
     throw new Error('FIREBASE_NOT_CONFIGURED');
@@ -74,11 +74,11 @@ export async function patchRiskAssessmentCustomerContext(
     ref,
     {
       customerContext: {
-        fileName: customerContext.fileName,
-        fileMeta: customerContext.fileMeta,
-        websiteUrl: customerContext.websiteUrl,
-        emailTitle: customerContext.emailTitle,
-        freeformText: customerContext.freeformText,
+        fileName: projectRequirements.fileName,
+        fileMeta: projectRequirements.fileMeta,
+        websiteUrl: projectRequirements.websiteUrl,
+        emailTitle: projectRequirements.emailTitle,
+        freeformText: projectRequirements.freeformText,
       },
       updatedAt: serverTimestamp(),
     },

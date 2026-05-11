@@ -97,7 +97,7 @@ export function DomainPage() {
     return (
       <>
         <PageHeader
-          title="Domain"
+          title="Authoritative Domain"
           description="Unknown domain. Please select a valid domain."
           actions={
             <Button component={RouterLink} to={backTo} variant="outlined" size="small">
@@ -117,7 +117,7 @@ export function DomainPage() {
   return (
     <>
       <PageHeader
-        title={`${domainLabel(domain)} Domain`}
+        title="Authoritative Domain"
         description={
           isFirebaseConfigured() ? (
             <>

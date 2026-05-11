@@ -1,5 +1,5 @@
 import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
-import type { CustomerContextFields } from '../domain/customerContext';
+import type { ProjectRequirementsFields } from '../domain/projectRequirements';
 
 export interface RiskAssessmentRunDraft {
   assessmentId: string;
@@ -8,7 +8,7 @@ export interface RiskAssessmentRunDraft {
   riskOwner: string;
   companyName: string;
   domain: 'ai' | 'who' | '';
-  customerContext?: CustomerContextFields;
+  customerContext?: ProjectRequirementsFields;
   customerReferenceText: string;
 }
 

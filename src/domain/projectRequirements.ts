@@ -1,5 +1,5 @@
-/** Customer context captured on the Add Customer Context screen (persisted locally and/or in Firestore). */
-export interface CustomerContextFields {
+/** Project requirements captured on the Add Project Requirements screen (persisted locally and/or in Firestore). */
+export interface ProjectRequirementsFields {
   /** Original file name, or null if cleared / never set */
   fileName: string | null;
   /** Display line (name, type, size); null when no file */
@@ -9,7 +9,7 @@ export interface CustomerContextFields {
   freeformText: string;
 }
 
-export function emptyCustomerContext(): CustomerContextFields {
+export function emptyProjectRequirements(): ProjectRequirementsFields {
   return {
     fileName: null,
     fileMeta: null,
@@ -19,10 +19,10 @@ export function emptyCustomerContext(): CustomerContextFields {
   };
 }
 
-export function normalizeCustomerContext(
-  raw: Partial<CustomerContextFields> | undefined | null,
-): CustomerContextFields {
-  const base = emptyCustomerContext();
+export function normalizeProjectRequirements(
+  raw: Partial<ProjectRequirementsFields> | undefined | null,
+): ProjectRequirementsFields {
+  const base = emptyProjectRequirements();
   if (!raw || typeof raw !== 'object') return base;
   return {
     fileName:
