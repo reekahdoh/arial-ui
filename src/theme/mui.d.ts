@@ -49,6 +49,11 @@ declare module '@mui/material/styles' {
       panel: string;
       inset: string;
     };
+    riskLevel: {
+      low: { main: string; contrastText: string };
+      moderate: { main: string; contrastText: string };
+      high: { main: string; contrastText: string };
+    };
     status: {
       low: string;
       medium: string;
@@ -72,6 +77,11 @@ declare module '@mui/material/styles' {
       canvas?: string;
       panel?: string;
       inset?: string;
+    };
+    riskLevel?: {
+      low?: { main?: string; contrastText?: string };
+      moderate?: { main?: string; contrastText?: string };
+      high?: { main?: string; contrastText?: string };
     };
     status?: {
       low?: string;

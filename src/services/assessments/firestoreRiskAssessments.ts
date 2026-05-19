@@ -1,33 +1,161 @@
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  type Timestamp,
+} from 'firebase/firestore';
+import type { AssessmentSummary } from '../../domain/assessment';
+import type { RiskSeverity, WorkflowStatus } from '../../constants/riskStatus';
 import type { ProjectRequirementsFields } from '../../domain/projectRequirements';
-import { normalizeProjectRequirements } from '../../domain/projectRequirements';
+import { customerContextForFirestore, normalizeProjectRequirements } from '../../domain/projectRequirements';
 import { FIRESTORE_COLLECTION_RISK_ASSESSMENTS } from '../../constants/firestoreCollections';
 import { getFirebase, isFirebaseConfigured } from '../firebase';
 
 export interface RiskAssessmentWrite {
+  backendAssessmentId: string;
   name: string;
   owner: string;
   riskOwner?: string;
   companyName: string;
   domainId?: string;
   domainName?: string;
+  domainKey?: 'ai' | 'who';
+  customerContext?: ProjectRequirementsFields;
+  severity?: RiskSeverity;
+  workflowStatus?: WorkflowStatus;
 }
 
-export interface RiskAssessmentRead {
+export interface RiskAssessmentRead extends AssessmentSummary {
   id: string;
+  backendAssessmentId?: string;
   name?: string;
   owner: string;
   riskOwner?: string;
   companyName: string;
   domainId?: string;
   domainName?: string;
+  domainKey?: 'ai' | 'who';
   customerContext?: ProjectRequirementsFields;
+}
+
+function stringFromDoc(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function domainKeyFromUnknown(value: unknown): 'ai' | 'who' | undefined {
+  return value === 'ai' || value === 'who' ? value : undefined;
+}
+
+function severityFromUnknown(value: unknown): RiskSeverity {
+  return value === 'low' || value === 'medium' || value === 'high' || value === 'critical'
+    ? value
+    : 'medium';
+}
+
+function workflowStatusFromUnknown(value: unknown): WorkflowStatus {
+  return value === 'draft' || value === 'in_review' || value === 'approved' || value === 'archived'
+    ? value
+    : 'draft';
+}
+
+function dateStringFromDoc(value: unknown): string {
+  if (typeof value === 'string' && value.trim()) return value;
+  if (value && typeof value === 'object' && typeof (value as Timestamp).toDate === 'function') {
+    const date = (value as Timestamp).toDate();
+    if (date instanceof Date && !Number.isNaN(date.getTime())) return date.toISOString();
+  }
+  return new Date().toISOString();
 }
 
 function parseProjectRequirementsFromDoc(data: Record<string, unknown>): ProjectRequirementsFields | undefined {
   const raw = data.customerContext;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
   return normalizeProjectRequirements(raw as Partial<ProjectRequirementsFields>);
+}
+
+function assessmentTitle(data: Record<string, unknown>, name: string | undefined, companyName: string): string {
+  return stringFromDoc(data.title) ?? name ?? `Risk assessment - ${companyName}`;
+}
+
+function optionalReadFields(
+  data: Record<string, unknown>,
+  values: {
+    backendAssessmentId?: string;
+    name?: string;
+    riskOwner?: string;
+    domainKey?: 'ai' | 'who';
+    customerContext?: ProjectRequirementsFields;
+  },
+): Partial<RiskAssessmentRead> {
+  return {
+    ...(values.backendAssessmentId ? { backendAssessmentId: values.backendAssessmentId } : {}),
+    ...(values.name ? { name: values.name } : {}),
+    ...(values.riskOwner ? { riskOwner: values.riskOwner } : {}),
+    ...(typeof data.domainId === 'string' ? { domainId: data.domainId } : {}),
+    ...(typeof data.domainName === 'string' ? { domainName: data.domainName } : {}),
+    ...(values.domainKey ? { domainKey: values.domainKey } : {}),
+    ...(values.customerContext ? { customerContext: values.customerContext } : {}),
+  };
+}
+
+function mapRiskAssessmentDoc(id: string, data: Record<string, unknown>): RiskAssessmentRead | null {
+  const owner = stringFromDoc(data.owner);
+  const companyName = stringFromDoc(data.companyName);
+  if (!owner || !companyName) return null;
+
+  const name = stringFromDoc(data.name);
+  const backendAssessmentId = stringFromDoc(data.backendAssessmentId);
+  const riskOwner = stringFromDoc(data.riskOwner);
+  const projectRequirements = parseProjectRequirementsFromDoc(data);
+  const domainKey = domainKeyFromUnknown(data.domainKey);
+  const title = assessmentTitle(data, name, companyName);
+  const updatedAt = dateStringFromDoc(data.updatedAt);
+  const severity = severityFromUnknown(data.severity);
+  const workflowStatus = workflowStatusFromUnknown(data.workflowStatus);
+
+  return {
+    id,
+    title,
+    ownerName: stringFromDoc(data.ownerName) ?? owner,
+    updatedAt,
+    severity,
+    workflowStatus,
+    owner,
+    companyName,
+    ...optionalReadFields(data, {
+      backendAssessmentId,
+      name,
+      riskOwner,
+      domainKey,
+      customerContext: projectRequirements,
+    }),
+  };
+}
+
+export async function listRiskAssessments(): Promise<RiskAssessmentRead[]> {
+  if (!isFirebaseConfigured()) {
+    throw new Error('FIREBASE_NOT_CONFIGURED');
+  }
+  const { db } = getFirebase();
+  const snap = await getDocs(query(collection(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS), orderBy('updatedAt', 'desc')));
+  return snap.docs
+    .map((d) => mapRiskAssessmentDoc(d.id, d.data() as Record<string, unknown>))
+    .filter((d): d is RiskAssessmentRead => d !== null);
+}
+
+/** Prefer the backend assessment id used by the AIRA API when it differs from the Firestore doc id. */
+export async function resolveBackendAssessmentId(assessmentId: string): Promise<string> {
+  const trimmed = assessmentId.trim();
+  if (!trimmed) return '';
+  if (!isFirebaseConfigured()) return trimmed;
+  const remote = await getRiskAssessment(trimmed);
+  return remote?.backendAssessmentId?.trim() || remote?.id || trimmed;
 }
 
 export async function getRiskAssessment(id: string): Promise<RiskAssessmentRead | null> {
@@ -37,24 +165,7 @@ export async function getRiskAssessment(id: string): Promise<RiskAssessmentRead 
   const { db } = getFirebase();
   const snap = await getDoc(doc(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS, id));
   if (!snap.exists()) return null;
-  const data = snap.data() as Record<string, unknown>;
-  const owner = data.owner;
-  const companyName = data.companyName;
-  if (typeof owner !== 'string' || typeof companyName !== 'string') return null;
-  const name = typeof data.name === 'string' ? data.name : undefined;
-  const riskOwner = typeof data.riskOwner === 'string' ? data.riskOwner : undefined;
-  const projectRequirements = parseProjectRequirementsFromDoc(data);
-
-  return {
-    id: snap.id,
-    ...(name !== undefined ? { name } : {}),
-    owner,
-    ...(riskOwner !== undefined ? { riskOwner } : {}),
-    companyName,
-    ...(typeof data.domainId === 'string' ? { domainId: data.domainId } : {}),
-    ...(typeof data.domainName === 'string' ? { domainName: data.domainName } : {}),
-    ...(projectRequirements ? { customerContext: projectRequirements } : {}),
-  };
+  return mapRiskAssessmentDoc(snap.id, snap.data() as Record<string, unknown>);
 }
 
 export async function patchRiskAssessmentProjectRequirements(
@@ -73,17 +184,19 @@ export async function patchRiskAssessmentProjectRequirements(
   await setDoc(
     ref,
     {
-      customerContext: {
-        fileName: projectRequirements.fileName,
-        fileMeta: projectRequirements.fileMeta,
-        websiteUrl: projectRequirements.websiteUrl,
-        emailTitle: projectRequirements.emailTitle,
-        freeformText: projectRequirements.freeformText,
-      },
+      customerContext: customerContextForFirestore(projectRequirements),
       updatedAt: serverTimestamp(),
     },
     { merge: true },
   );
+}
+
+export async function deleteRiskAssessment(id: string): Promise<void> {
+  if (!isFirebaseConfigured()) {
+    return;
+  }
+  const { db } = getFirebase();
+  await deleteDoc(doc(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS, id));
 }
 
 export async function upsertRiskAssessment(id: string, input: RiskAssessmentWrite): Promise<void> {
@@ -92,15 +205,26 @@ export async function upsertRiskAssessment(id: string, input: RiskAssessmentWrit
   }
   const { db } = getFirebase();
   const ref = doc(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS, id);
+  const title = input.name || (input.companyName ? `Risk assessment - ${input.companyName}` : 'Risk assessment');
+  const customerContext = input.customerContext
+    ? customerContextForFirestore(input.customerContext)
+    : undefined;
   await setDoc(
     ref,
     {
+      backendAssessmentId: input.backendAssessmentId,
       name: input.name,
+      title,
       owner: input.owner,
-      ...(input.riskOwner !== undefined ? { riskOwner: input.riskOwner } : {}),
+      ownerName: input.owner,
+      ...(input.riskOwner ? { riskOwner: input.riskOwner } : {}),
       companyName: input.companyName,
       ...(input.domainId ? { domainId: input.domainId } : {}),
       ...(input.domainName ? { domainName: input.domainName } : {}),
+      ...(input.domainKey ? { domainKey: input.domainKey } : {}),
+      ...(customerContext ? { customerContext } : {}),
+      severity: input.severity ?? 'medium',
+      workflowStatus: input.workflowStatus ?? 'draft',
       updatedAt: serverTimestamp(),
       createdAt: serverTimestamp(),
     },

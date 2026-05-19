@@ -9,6 +9,9 @@ REACT_APP_FIREBASE_AUTH_DOMAIN=
 REACT_APP_FIREBASE_PROJECT_ID=
 REACT_APP_FIREBASE_APP_ID=
 
+# Backend API proxy base URL. Do not include a trailing slash.
+REACT_APP_BACKEND_PROXY_URL=http://34.39.37.147:8080
+
 # Optional (only if your Firebase web config includes them)
 REACT_APP_FIREBASE_STORAGE_BUCKET=
 REACT_APP_FIREBASE_MESSAGING_SENDER_ID=

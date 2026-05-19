@@ -6,3 +6,4 @@ export const FIRESTORE_COLLECTION_LOGIN_NAMES = 'loginNames';
 export const FIRESTORE_COLLECTION_RISK_ASSESSMENTS = 'RiskAssessment';
 export const FIRESTORE_COLLECTION_DOMAINS = 'Domain';
 export const FIRESTORE_COLLECTION_AUTHORATIVE_REFERENCES = 'AuthorativeReference';
+export const FIRESTORE_COLLECTION_CUSTOMER_DOMAIN_REFERENCES = 'CustomerDomainReference';

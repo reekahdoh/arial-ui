@@ -26,7 +26,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAny(['owner', 'companyName'])
         && request.resource.data.owner is string
         && request.resource.data.companyName is string;
-      allow delete: if false;
+      allow delete: if request.auth != null;
     }
 
     // Domain reference data (seeded with AI + WHO).
@@ -50,6 +50,17 @@ service cloud.firestore {
         && request.resource.data.kind in ['website', 'document']
         && request.resource.data.value is string;
       allow update, delete: if false;
+    }
+
+    // Customer-specific references linked to a RiskAssessment doc via assessmentId.
+    match /CustomerDomainReference/{referenceId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasAll(['assessmentId', 'kind', 'value'])
+        && request.resource.data.assessmentId is string
+        && request.resource.data.kind in ['website', 'document']
+        && request.resource.data.value is string;
+      allow delete: if request.auth != null;
     }
   }
 }

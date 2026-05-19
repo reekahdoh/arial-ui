@@ -39,26 +39,40 @@ function firebaseConfig() {
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN ?? '',
     projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID ?? '',
     appId: process.env.REACT_APP_FIREBASE_APP_ID ?? '',
-    ...(process.env.REACT_APP_FIREBASE_STORAGE_BUCKET
-      ? { storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET }
-      : {}),
-    ...(process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID
-      ? { messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID }
-      : {}),
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   };
 
   if (shouldUseEmulators()) {
-    return {
+    const config = {
       apiKey: fromEnv.apiKey || EMULATOR_DEMO_WEB_CONFIG.apiKey,
       authDomain: fromEnv.authDomain || EMULATOR_DEMO_WEB_CONFIG.authDomain,
       projectId: fromEnv.projectId || EMULATOR_DEMO_WEB_CONFIG.projectId,
       appId: fromEnv.appId || EMULATOR_DEMO_WEB_CONFIG.appId,
-      ...(fromEnv.storageBucket ? { storageBucket: fromEnv.storageBucket } : {}),
-      ...(fromEnv.messagingSenderId ? { messagingSenderId: fromEnv.messagingSenderId } : {}),
     };
+    return withOptionalFirebaseFields(config, fromEnv);
   }
 
-  return fromEnv;
+  return withOptionalFirebaseFields(
+    {
+      apiKey: fromEnv.apiKey,
+      authDomain: fromEnv.authDomain,
+      projectId: fromEnv.projectId,
+      appId: fromEnv.appId,
+    },
+    fromEnv,
+  );
+}
+
+function withOptionalFirebaseFields<T extends Record<string, string>>(
+  config: T,
+  optional: { storageBucket?: string; messagingSenderId?: string },
+): T & { storageBucket?: string; messagingSenderId?: string } {
+  return {
+    ...config,
+    ...(optional.storageBucket ? { storageBucket: optional.storageBucket } : {}),
+    ...(optional.messagingSenderId ? { messagingSenderId: optional.messagingSenderId } : {}),
+  };
 }
 
 export function isFirebaseConfigured(): boolean {
@@ -71,13 +85,15 @@ let emulatorsConnected = false;
 
 /** Firestore listens on all interfaces; prefer IPv4 so the browser is not stuck “offline” when `localhost` resolves to ::1 only. */
 const FIRESTORE_EMULATOR_HOST = '127.0.0.1';
-const FIRESTORE_EMULATOR_PORT = 8080;
+const FIRESTORE_EMULATOR_PORT = 9399;
 
 function initFirestore(app: FirebaseApp): Firestore {
+  const settings = shouldUseEmulators()
+    ? { experimentalAutoDetectLongPolling: true as const }
+    : { localCache: memoryLocalCache() };
+
   try {
-    return initializeFirestore(app, {
-      localCache: memoryLocalCache(),
-    });
+    return initializeFirestore(app, settings);
   } catch {
     // Hot reload / second init: reuse the existing Firestore instance for this app.
     return getFirestore(app);

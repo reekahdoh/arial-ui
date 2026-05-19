@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import { accentPrimary, neutral, spacingUnit } from './tokens';
+import { accentPrimary, neutral, riskLevelColors, spacingUnit } from './tokens';
 
 const hairlineShadow = '0 1px 0 rgba(15, 23, 42, 0.06)';
 
@@ -43,12 +43,20 @@ export const appTheme = createTheme({
       panel: '#ffffff',
       inset: neutral[100],
     },
-    status: {
-      low: neutral[500],
-      medium: '#b45309',
-      high: '#c2410c',
-      critical: '#991b1b',
+    riskLevel: {
+      low: riskLevelColors.low,
+      moderate: riskLevelColors.moderate,
+      high: riskLevelColors.high,
     },
+    status: {
+      low: riskLevelColors.low.main,
+      medium: riskLevelColors.moderate.main,
+      high: riskLevelColors.high.main,
+      critical: riskLevelColors.high.main,
+    },
+    success: riskLevelColors.low,
+    warning: riskLevelColors.moderate,
+    error: riskLevelColors.high,
     workflow: {
       draft: neutral[500],
       /** Teal-600 — same family as primary */

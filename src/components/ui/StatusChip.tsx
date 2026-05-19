@@ -4,6 +4,7 @@ import {
   type RiskSeverity,
   type WorkflowStatus,
   riskSeverityColor,
+  riskSeverityContrastText,
   riskSeverityLabels,
   workflowStatusColor,
   workflowStatusLabels,
@@ -33,6 +34,11 @@ export function StatusChip({ kind, value, size = 'small', sx, ...rest }: StatusC
       ? riskSeverityColor(theme, value as RiskSeverity)
       : workflowStatusColor(theme, value as WorkflowStatus);
 
+  const labelColor =
+    kind === 'severity'
+      ? riskSeverityContrastText(theme, value as RiskSeverity)
+      : theme.palette.getContrastText(backgroundColor);
+
   return (
     <Chip
       label={label}
@@ -43,7 +49,7 @@ export function StatusChip({ kind, value, size = 'small', sx, ...rest }: StatusC
           fontWeight: 600,
           letterSpacing: '0.01em',
           backgroundColor,
-          color: theme.palette.getContrastText(backgroundColor),
+          color: labelColor,
           '& .MuiChip-label': { px: 1 },
           ...(kind === 'severity'
             ? {

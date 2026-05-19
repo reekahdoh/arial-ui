@@ -25,6 +25,22 @@ export const neutral = {
   900: '#0f172a',
 } as const;
 
+/** Risk bands — green (low), orange (moderate), red (high). Used on Risk Report and severity chips. */
+export const riskLevelColors = {
+  low: {
+    main: '#2e7d32',
+    contrastText: '#ffffff',
+  },
+  moderate: {
+    main: '#ed6c02',
+    contrastText: '#ffffff',
+  },
+  high: {
+    main: '#d32f2f',
+    contrastText: '#ffffff',
+  },
+} as const;
+
 export const spacingUnit = 8;
 
 export const layout = {

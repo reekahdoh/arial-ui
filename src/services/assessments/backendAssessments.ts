@@ -1,3 +1,5 @@
+import { buildBackendProxyUrl } from '../backendProxy';
+
 export interface CreateBackendAssessmentInput {
   userId: string;
   name: string;
@@ -12,7 +14,7 @@ export interface CreateBackendAssessmentResult {
 }
 
 function getBackendAssessmentsBaseUrl(): string {
-  return 'http://34.39.37.147:8080/assessments';
+  return buildBackendProxyUrl('/assessments');
 }
 
 export function buildBackendAssessmentUrl(assessmentId: string): string {
@@ -54,6 +56,10 @@ export interface PutBackendAssessmentRequirementsInput {
   file: File;
 }
 
+export function buildBackendAssessmentRequirementsFetchUrl(assessmentId: string): string {
+  return `${buildBackendAssessmentUrl(assessmentId.trim())}/requirements`;
+}
+
 export function buildAssessmentRequirementsUrl(
   assessmentId: string,
   input: Pick<PutBackendAssessmentRequirementsInput, 'userId' | 'name' | 'description'>,
@@ -62,7 +68,72 @@ export function buildAssessmentRequirementsUrl(
   params.set('user_id', input.userId);
   params.set('name', input.name);
   params.set('description', input.description);
-  return `${buildBackendAssessmentUrl(assessmentId.trim())}/requirements?${params.toString()}`;
+  return `${buildBackendAssessmentRequirementsFetchUrl(assessmentId)}?${params.toString()}`;
+}
+
+function basenameFromPath(path: string): string {
+  const trimmed = path.trim().replace(/[/\\]+$/, '');
+  const parts = trimmed.split(/[/\\]/);
+  const last = parts[parts.length - 1]?.trim() ?? '';
+  return last;
+}
+
+function requirementsPathFromUnknown(value: unknown): string | null {
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (!value || typeof value !== 'object') return null;
+
+  const record = value as Record<string, unknown>;
+  const keys = [
+    'requirements',
+    'requirements_file',
+    'requirements_file_path',
+    'requirements_path',
+    'file',
+    'file_path',
+    'path',
+    'url',
+    'name',
+    'filename',
+    'file_name',
+  ] as const;
+
+  for (const key of keys) {
+    const candidate = requirementsPathFromUnknown(record[key]);
+    if (candidate) return candidate;
+  }
+
+  for (const key of ['data', 'result', 'assessment'] as const) {
+    const nested = requirementsPathFromUnknown(record[key]);
+    if (nested) return nested;
+  }
+
+  return null;
+}
+
+/** Extract display filename from GET /assessments/{id}/requirements response. */
+export function requirementsDocumentFileName(data: unknown, raw: string): string | null {
+  const fromData = requirementsPathFromUnknown(data);
+  if (fromData) {
+    const basename = basenameFromPath(fromData);
+    if (basename) return basename;
+  }
+
+  const trimmedRaw = raw.trim();
+  if (!trimmedRaw) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(trimmedRaw);
+    const fromParsed = requirementsPathFromUnknown(parsed);
+    if (fromParsed) {
+      const basename = basenameFromPath(fromParsed);
+      if (basename) return basename;
+    }
+  } catch {
+    // plain string path
+  }
+
+  const basename = basenameFromPath(trimmedRaw.replace(/^"|"$/g, ''));
+  return basename || null;
 }
 
 export interface FetchBackendAssessmentResult {
@@ -81,6 +152,20 @@ export async function fetchBackendAssessmentById(
   signal?: AbortSignal,
 ): Promise<FetchBackendAssessmentResult> {
   const url = buildBackendAssessmentUrl(assessmentId.trim());
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { Accept: 'application/json, text/plain, */*' },
+    signal,
+  });
+
+  return parseBackendAssessmentResponse(res);
+}
+
+export async function fetchBackendAssessmentRequirements(
+  assessmentId: string,
+  signal?: AbortSignal,
+): Promise<FetchBackendAssessmentResult> {
+  const url = buildBackendAssessmentRequirementsFetchUrl(assessmentId);
   const res = await fetch(url, {
     method: 'GET',
     headers: { Accept: 'application/json, text/plain, */*' },
