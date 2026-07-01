@@ -8,7 +8,7 @@ import { AssessmentsListPage } from '../features/assessments/pages/AssessmentsLi
 import { AddProjectRequirementsPage } from '../features/assessments/pages/AddProjectRequirementsPage';
 import { NewRiskAssessmentPage } from '../features/assessments/pages/NewRiskAssessmentPlaceholderPage';
 import { PreparingRiskAssessmentPage } from '../features/assessments/pages/PreparingRiskAssessmentPage';
-import { AssessingRiskAssessmentPage } from '../features/assessments/pages/AssessingRiskAssessmentPage';
+import { AssessingRiskRedirect } from '../features/assessments/pages/AssessingRiskRedirect';
 import { RiskReportPage } from '../features/assessments/pages/RiskReportPage';
 import { AiraHomePage } from '../features/home/pages/AiraHomePage';
 import { WelcomeAuthPage } from '../features/auth/pages/WelcomeAuthPage';
@@ -39,7 +39,7 @@ export default function App() {
                 <Route path="/assessments/new/project-requirements" element={<AddProjectRequirementsPage />} />
                 <Route path="/assessments/new" element={<NewRiskAssessmentPage />} />
                 <Route path="/assessments/running" element={<PreparingRiskAssessmentPage />} />
-                <Route path="/assessments/assessing-risk" element={<AssessingRiskAssessmentPage />} />
+                <Route path="/assessments/assessing-risk" element={<AssessingRiskRedirect />} />
                 <Route path="/assessments/risk-report" element={<RiskReportPage />} />
                 <Route path="/assessments" element={<AssessmentsListPage />} />
                 <Route path="/assessments/:assessmentId" element={<AssessmentRedirect />} />

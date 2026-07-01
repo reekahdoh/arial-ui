@@ -149,9 +149,13 @@ export function AssessmentQuestionAnswerContent({
           {completionAction.label}
         </Button>
       ) : null}
-      {showAnswerForm ? (
+      {progressPercent !== null ? (
         <Box sx={{ width: '100%', maxWidth: 720, mt: 1 }}>
           <AssessmentProgress progressPercent={progressPercent} ariaLabel={progressAriaLabel} />
+        </Box>
+      ) : null}
+      {showAnswerForm ? (
+        <Box sx={{ width: '100%', maxWidth: 720, mt: 1 }}>
           <AssessmentQuestion question={question} />
           <AssessmentAnswerForm
             answer={answer}

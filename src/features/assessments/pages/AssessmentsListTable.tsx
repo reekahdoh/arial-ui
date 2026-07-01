@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { AppTable } from '../../../components/ui/AppTable';
-import { riskSeverityColor, riskSeverityLabels } from '../../../constants/riskStatus';
+import { riskLevelBandFromLabel, riskLevelMainColor } from '../../../constants/riskStatus';
 import type { RiskAssessmentRead } from '../../../services/assessments/firestoreRiskAssessments';
 import { formatShortDate } from '../../../utils/formatDate';
 import {
@@ -21,6 +21,50 @@ import {
   isCompletedAssessmentStatus,
   type AssessmentStatusState,
 } from './assessmentsListHelpers';
+
+/** Hide table columns below `sm` — keeps the list readable on narrow viewports. */
+const hideBelowSm = { display: { xs: 'none', sm: 'table-cell' } } as const;
+/** Hide score columns until there is room for the full table. */
+const hideBelowMd = { display: { xs: 'none', md: 'table-cell' } } as const;
+
+const titleCellSx = {
+  maxWidth: { xs: 160, sm: 220, md: 320 },
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+} as const;
+
+const idCellSx = {
+  maxWidth: 180,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  fontFamily: 'monospace',
+  fontSize: '0.8125rem',
+} as const;
+
+const compactCellSx = { whiteSpace: 'nowrap' } as const;
+const iconCellSx = { width: 48, px: 0.5, whiteSpace: 'nowrap' } as const;
+
+function RiskLevelCell({ value, isLoading }: { value: string | null | undefined; isLoading?: boolean }) {
+  const label = isLoading ? 'Loading...' : value ?? '—';
+
+  return (
+    <Typography
+      variant="data"
+      sx={(theme) =>
+        value
+          ? {
+              color: riskLevelMainColor(theme, riskLevelBandFromLabel(value)),
+              fontWeight: 600,
+            }
+          : {}
+      }
+    >
+      {label}
+    </Typography>
+  );
+}
 
 function AssessmentListRow({
   row,
@@ -36,17 +80,21 @@ function AssessmentListRow({
   const assessmentId = getAssessmentId(row);
   const backendStatus = statusState?.status;
   const reportAssessmentId = statusState?.assessmentId;
+  const riskImpact = statusState?.riskImpact;
+  const riskLikelihood = statusState?.riskLikelihood;
+  const isLoadingScores = statusState?.isLoading;
 
   return (
     <TableRow hover>
-      <TableCell>
-        <Typography variant="dataEmphasis" component="p" sx={{ mb: 0.25 }}>
+      <TableCell sx={titleCellSx}>
+        <Typography variant="dataEmphasis" component="p" sx={{ mb: 0.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {assessmentId ? (
             <Link
               component={RouterLink}
               to={`/assessments/new?assessmentId=${encodeURIComponent(assessmentId)}`}
               underline="hover"
               color="inherit"
+              sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
             >
               {row.title}
             </Link>
@@ -55,30 +103,27 @@ function AssessmentListRow({
           )}
         </Typography>
       </TableCell>
-      <TableCell>
+      <TableCell sx={{ ...hideBelowSm, ...idCellSx }}>
         <Typography variant="data">{assessmentId || '—'}</Typography>
       </TableCell>
-      <TableCell>
-        <Typography variant="data">{row.ownerName}</Typography>
-      </TableCell>
-      <TableCell>
-        <Typography variant="data">{formatShortDate(row.updatedAt)}</Typography>
-      </TableCell>
-      <TableCell>
-        <Typography
-          variant="data"
-          sx={(theme) => ({
-            color: riskSeverityColor(theme, row.severity),
-            fontWeight: 600,
-          })}
-        >
-          {riskSeverityLabels[row.severity].toUpperCase()}
+      <TableCell sx={hideBelowSm}>
+        <Typography variant="data" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {row.ownerName}
         </Typography>
       </TableCell>
-      <TableCell>
+      <TableCell sx={{ ...hideBelowSm, ...compactCellSx }}>
+        <Typography variant="data">{formatShortDate(row.updatedAt)}</Typography>
+      </TableCell>
+      <TableCell sx={{ ...hideBelowMd, ...compactCellSx }}>
+        <RiskLevelCell value={riskImpact} isLoading={isLoadingScores} />
+      </TableCell>
+      <TableCell sx={{ ...hideBelowMd, ...compactCellSx }}>
+        <RiskLevelCell value={riskLikelihood} isLoading={isLoadingScores} />
+      </TableCell>
+      <TableCell sx={compactCellSx}>
         <Typography variant="data">{assessmentStatusLabel(assessmentId, statusState)}</Typography>
       </TableCell>
-      <TableCell align="center">
+      <TableCell align="center" sx={iconCellSx}>
         {isCompletedAssessmentStatus(backendStatus) && reportAssessmentId ? (
           <Tooltip title="View report">
             <IconButton
@@ -92,7 +137,7 @@ function AssessmentListRow({
           </Tooltip>
         ) : null}
       </TableCell>
-      <TableCell align="center">
+      <TableCell align="center" sx={iconCellSx}>
         <Tooltip title="Delete assessment and associated data">
           <span>
             <IconButton
@@ -125,23 +170,28 @@ export function AssessmentsListTable({
   onDelete: (row: RiskAssessmentRead) => void;
 }) {
   return (
-    <AppTable aria-label="Risk Assessments">
+    <AppTable aria-label="Risk Assessments" tableProps={{ sx: { minWidth: { xs: 0, md: 720 } } }}>
       <TableHead>
         <TableRow>
           <TableCell>Title</TableCell>
-          <TableCell>Assessment ID</TableCell>
-          <TableCell>Owner</TableCell>
-          <TableCell>Updated</TableCell>
-          <TableCell>Severity</TableCell>
+          <TableCell sx={hideBelowSm}>Assessment ID</TableCell>
+          <TableCell sx={hideBelowSm}>Owner</TableCell>
+          <TableCell sx={hideBelowSm}>Updated</TableCell>
+          <TableCell sx={hideBelowMd}>Risk Impact</TableCell>
+          <TableCell sx={hideBelowMd}>Risk Likelihood</TableCell>
           <TableCell>Status</TableCell>
-          <TableCell align="center">Report</TableCell>
-          <TableCell align="center">Actions</TableCell>
+          <TableCell align="center" sx={iconCellSx}>
+            Report
+          </TableCell>
+          <TableCell align="center" sx={iconCellSx}>
+            Actions
+          </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {loading ? (
           <TableRow>
-            <TableCell colSpan={8}>
+            <TableCell colSpan={9}>
               <Typography variant="body2" color="text.secondary">
                 Loading risk assessments...
               </Typography>

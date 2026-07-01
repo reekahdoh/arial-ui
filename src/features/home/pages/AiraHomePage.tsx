@@ -1,25 +1,8 @@
-import { Alert, Box, Typography } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Box, Typography } from '@mui/material';
 import { AppCTAButtonLink } from '../../../components/ui/AppCTAButton';
 import { appCtaButton } from '../../../theme/tokens';
 
-function readRegisteredMessage(state: unknown): string | null {
-  if (state && typeof state === 'object' && 'registeredMessage' in state) {
-    const message = (state as { registeredMessage: unknown }).registeredMessage;
-    return typeof message === 'string' ? message : null;
-  }
-  return null;
-}
-
 export function AiraHomePage() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const registeredMessage = readRegisteredMessage(location.state);
-
-  const dismissBanner = () => {
-    navigate(location.pathname, { replace: true, state: {} });
-  };
-
   return (
     <Box
       sx={{
@@ -32,16 +15,6 @@ export function AiraHomePage() {
         px: 2,
       }}
     >
-      {registeredMessage ? (
-        <Alert
-          severity="success"
-          sx={{ mb: 3, width: '100%', maxWidth: 480, alignSelf: 'center' }}
-          onClose={dismissBanner}
-        >
-          {registeredMessage}
-        </Alert>
-      ) : null}
-
       <Box
         sx={{
           display: 'flex',

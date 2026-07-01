@@ -1,5 +1,11 @@
 import { stringFromUnknown } from './assessmentPageShared';
-import type { HighRiskSummary, OverallRiskAssessment, ReportDocument, RiskDetail } from './riskReportTypes';
+import type {
+  HighRiskSummary,
+  OverallRiskAssessment,
+  ReportDocument,
+  RiskDetail,
+  RiskMitigation,
+} from './riskReportTypes';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -51,15 +57,72 @@ function getRiskSummaryFromEntry(
   };
 }
 
-function stringsFromUnknownList(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value.flatMap((item) => {
-      const text = stringFromUnknown(item);
-      return text ? [text] : [];
-    });
+function firstStringFromRecord(record: Record<string, unknown>, keys: string[]): string | null {
+  for (const key of keys) {
+    const text = stringFromUnknown(record[key]);
+    if (text) return text;
   }
-  const text = stringFromUnknown(value);
-  return text ? [text] : [];
+  return null;
+}
+
+function mitigationSummaryParts(
+  number: string | null,
+  requirement: string | null,
+  acceptance: string | null,
+  evidence: string | null,
+): string[] {
+  const parts: string[] = [];
+  if (requirement) {
+    parts.push(number ? `${number}. ${requirement}` : requirement);
+  } else if (number) {
+    parts.push(number);
+  }
+  if (acceptance) parts.push(acceptance);
+  if (evidence) parts.push(evidence);
+  return parts;
+}
+
+function mitigationFromRecord(record: Record<string, unknown>): RiskMitigation | null {
+  const number = firstStringFromRecord(record, ['number', 'id']);
+  const requirement = firstStringFromRecord(record, [
+    'requirement',
+    'text',
+    'description',
+    'content',
+    'action',
+    'mitigation',
+    'statement',
+  ]);
+  const acceptance = firstStringFromRecord(record, ['acceptance', 'acceptance_criteria', 'acceptanceCriteria']);
+  const evidence = firstStringFromRecord(record, ['evidence', 'evidence_to_provide', 'evidenceToProvide']);
+
+  if (!requirement && !acceptance && !evidence) return null;
+
+  return {
+    summary: mitigationSummaryParts(number, requirement, acceptance, evidence).join(' '),
+    requirement,
+    acceptance,
+    evidence,
+  };
+}
+
+function mitigationFromUnknown(item: unknown): RiskMitigation | null {
+  const text = stringFromUnknown(item);
+  if (text) {
+    return { summary: text, requirement: text, acceptance: null, evidence: null };
+  }
+  if (!isRecord(item)) return null;
+  return mitigationFromRecord(item);
+}
+
+function mitigationsFromUnknown(value: unknown): RiskMitigation[] {
+  if (value == null) return [];
+
+  const items = Array.isArray(value) ? value : isRecord(value) ? Object.values(value) : [value];
+  return items.flatMap((item) => {
+    const mitigation = mitigationFromUnknown(item);
+    return mitigation ? [mitigation] : [];
+  });
 }
 
 export function getOverallRiskAssessments(reportDocument: ReportDocument): OverallRiskAssessment[] {
@@ -81,7 +144,9 @@ export function getOverallRiskAssessments(reportDocument: ReportDocument): Overa
         description: stringFromUnknown(risk?.description),
         impact: normalizeAssessmentLevel(riskEntry.impact),
         likelihood: normalizeAssessmentLevel(riskEntry.likelihood),
-        mitigations: stringsFromUnknownList(riskEntry.mitigations),
+        score: normalizeAssessmentLevel(riskEntry.overall_risk),
+        rationale: stringFromUnknown(riskEntry.rationale),
+        mitigations: mitigationsFromUnknown(riskEntry.mitigations),
       });
     }
   }

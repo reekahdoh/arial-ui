@@ -40,9 +40,12 @@ export function WelcomeAuthPageLayout({
 
         {!configured ? (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Copy <Typography component="span" variant="captionStrong">.env.example</Typography> to{' '}
-            <Typography component="span" variant="captionStrong">.env.local</Typography> and set your Firebase web app
-            keys, then restart the dev server.
+            Set <Typography component="span" variant="captionStrong">REACT_APP_FIREBASE_*</Typography> in{' '}
+            <Typography component="span" variant="captionStrong">.env</Typography> (see{' '}
+            <Typography component="span" variant="captionStrong">.env.example</Typography>). For production, run{' '}
+            <Typography component="span" variant="captionStrong">npm run build</Typography> then{' '}
+            <Typography component="span" variant="captionStrong">firebase deploy --only hosting</Typography> — env
+            files are not uploaded; values are baked into the build. Locally, restart the dev server after changing env.
           </Alert>
         ) : null}
 

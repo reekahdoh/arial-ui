@@ -1,6 +1,6 @@
 import { projectRequirementsRows } from './newRiskAssessmentWizardHelpers';
 import { useNewRiskAssessmentWizardActions } from './useNewRiskAssessmentWizardActions';
-import { useRunDraftSync, useWizardInitialLoad } from './useNewRiskAssessmentWizardLoad';
+import { useRunDraftSync, useWizardInitialLoad, useWizardOwnerFromAuth } from './useNewRiskAssessmentWizardLoad';
 import { useNewRiskAssessmentWizardNavigation } from './useNewRiskAssessmentWizardNavigation';
 import { useNewRiskAssessmentWizardReviewAutoSave } from './useNewRiskAssessmentWizardReviewAutoSave';
 import { allWizardFieldsComplete, buildNewRiskAssessmentWizardReturn } from './useNewRiskAssessmentWizardReturn';
@@ -12,6 +12,7 @@ export function useNewRiskAssessmentWizard() {
   const { assessmentId, step, setStep, name, owner, riskOwner, companyName, domain, projectRequirements, isSaving, persistTick, setAssessmentId, setName, setOwner, setRiskOwner, setCompanyName, setSaveError, setIsSaving, setIsRunning, setPersistTick, draftSetters } = state;
 
   useWizardInitialLoad(setAssessmentId, draftSetters);
+  useWizardOwnerFromAuth(setOwner);
   useRunDraftSync(assessmentId, { name, owner, riskOwner, companyName, domain, projectRequirements }, persistTick);
 
   const projectRequirementsFileView = useProjectRequirementsFileView({

@@ -91,14 +91,21 @@ async function fetchDocumentContentFromApi(
   };
 }
 
-export async function fetchRequirementsDocumentContent(
+export async function loadAssessmentRequirementsRecords(
   assessmentId: string,
-  options?: { preferredFileName?: string | null; signal?: AbortSignal },
-): Promise<{ content: string; displayName: string }> {
+  signal?: AbortSignal,
+): Promise<RequirementsFileRecord[]> {
+  return fetchRequirementsFileRecords(assessmentId, signal);
+}
+
+async function fetchRequirementsFileRecords(
+  assessmentId: string,
+  signal?: AbortSignal,
+): Promise<RequirementsFileRecord[]> {
   const trimmedId = assessmentId.trim();
   if (!trimmedId) throw new Error('Missing assessment id.');
 
-  const listResult = await fetchBackendAssessmentRequirements(trimmedId, options?.signal);
+  const listResult = await fetchBackendAssessmentRequirements(trimmedId, signal);
   if (!listResult.ok) {
     throw new Error(
       `GET /assessments/${trimmedId}/requirements returned ${listResult.status}: ${listResult.raw || '(empty response)'}`,
@@ -110,6 +117,17 @@ export async function fetchRequirementsDocumentContent(
     throw new Error('No requirements document has been uploaded for this assessment yet.');
   }
 
+  return records;
+}
+
+export async function fetchRequirementsDocumentContent(
+  assessmentId: string,
+  options?: { preferredFileName?: string | null; signal?: AbortSignal },
+): Promise<{ content: string; displayName: string }> {
+  const trimmedId = assessmentId.trim();
+  if (!trimmedId) throw new Error('Missing assessment id.');
+
+  const records = await fetchRequirementsFileRecords(trimmedId, options?.signal);
   const record = pickRequirementsFileRecord(records, options?.preferredFileName);
 
   try {

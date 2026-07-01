@@ -25,7 +25,7 @@ function RequestLogEntry({
         <RequestStatus entry={entry} index={index} />
       </Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600, mb: 0.25 }}>
-        POST URL (browser fetch target — proxy must forward here for the risk API)
+        {entry.request.method} URL (browser fetch target)
       </Typography>
       <Typography
         variant="caption"
@@ -36,7 +36,7 @@ function RequestLogEntry({
         {entry.request.url}
       </Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600, mb: 0.25 }}>
-        Request body (JSON POST body)
+        Request body{entry.request.method === 'POST' ? ' (JSON POST body)' : ''}
       </Typography>
       <Typography
         variant="caption"
@@ -88,7 +88,7 @@ function RiskExchangeLog({ riskExchangeLog }: { riskExchangeLog: AssessmentRiskE
       }}
     >
       <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        assessment risk requests and responses
+        assessment answer requests and responses
       </Typography>
       {riskExchangeLog.map((entry, index, arr) => (
         <RequestLogEntry key={entry.key} entry={entry} index={index} isLast={index === arr.length - 1} />

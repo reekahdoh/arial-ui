@@ -1,178 +1,97 @@
-import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
-import { isAbortError, mapThrownError } from './assessmentPageShared';
-import {
-  AI_ID_INITIAL_MESSAGE,
-  AI_ID_USER_ID,
-  assertAiIdResult,
-  buildAiIdRequestUrl,
-  formatRiskIdDoneStatus,
-  getRiskIdUrl,
-  IDENTIFIED_STAGE,
-  isIdentifiedAiStage,
-  postAiIdJson,
-  postRiskIdTextWithNetworkError,
-  statusAfterAiIdStage,
-  type AiIdJson,
-} from './runningRiskAssessmentApi';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
+import type { AssessmentRiskExchangeLogEntry, RiskReportPayload } from './assessingRiskAssessmentApi';
+import type { AiIdResponseLogEntry } from './preparingRiskAssessmentApi';
+import type { RunningFlowSetters } from './runningRiskAssessmentFlow';
+import { useInitialRunningAssessmentLoad } from './useInitialRunningAssessmentLoad';
+import { useRunningAnswerSubmit } from './useRunningAnswerSubmit';
 
-const ANSWER_PROCESSING_STATUS =
-  'Thanks, we’re analysing your answers against the Domain References to provide a clear Risk Result tailored for your project requirements.';
-
-function applyAiIdResponse(
-  data: AiIdJson,
-  setAiStage: Dispatch<SetStateAction<string | null>>,
-  setQuestion: Dispatch<SetStateAction<string | null>>,
-  setStatus: Dispatch<SetStateAction<string>>,
-) {
-  setAiStage(data.chat_stage);
-  setQuestion(data.message || null);
-  setStatus(statusAfterAiIdStage(data.chat_stage));
-}
-
-function useInitialAiIdLoad(setters: {
-  setAiStage: Dispatch<SetStateAction<string | null>>;
-  setError: Dispatch<SetStateAction<string | null>>;
-  setHasStartedAiId: Dispatch<SetStateAction<boolean>>;
-  setIsFirstResponseReady: Dispatch<SetStateAction<boolean>>;
-  setQuestion: Dispatch<SetStateAction<string | null>>;
-  setStatus: Dispatch<SetStateAction<string>>;
-}) {
-  useEffect(() => {
-    const controller = new AbortController();
-
-    void (async () => {
-      try {
-        setters.setStatus('Understanding your risk...');
-        const url = buildAiIdRequestUrl(AI_ID_USER_ID, AI_ID_INITIAL_MESSAGE);
-        const result = assertAiIdResult(await postAiIdJson(url, controller.signal));
-        setters.setHasStartedAiId(true);
-        applyAiIdResponse(result, setters.setAiStage, setters.setQuestion, setters.setStatus);
-        if (result.chat_stage !== IDENTIFIED_STAGE) setters.setStatus('Ready.');
-        setters.setIsFirstResponseReady(true);
-      } catch (err) {
-        if (isAbortError(err)) return;
-        const message = mapThrownError(err, 'Failed to run risk assessment.');
-        if (message) setters.setError(message);
-      }
-    })();
-
-    return () => controller.abort();
-  }, [setters]);
-}
-
-function useRiskIdWhenIdentified(
-  aiStage: string | null,
-  error: string | null,
-  hasRunRisk: boolean,
-  hasStartedAiId: boolean,
-  setError: Dispatch<SetStateAction<string | null>>,
-  setHasRunRisk: Dispatch<SetStateAction<boolean>>,
-  setStatus: Dispatch<SetStateAction<string>>,
-) {
-  useEffect(() => {
-    if (error || !hasStartedAiId || aiStage !== IDENTIFIED_STAGE || hasRunRisk) return;
-
-    const controller = new AbortController();
-    setHasRunRisk(true);
-
-    void (async () => {
-      try {
-        setStatus('Calculating risk…');
-        const { ok, status: httpStatus, text } = await postRiskIdTextWithNetworkError(getRiskIdUrl(), controller.signal);
-        if (!ok) throw new Error(`risk-id returned ${httpStatus}: ${text || '(empty response)'}`);
-        setStatus(formatRiskIdDoneStatus(text));
-      } catch (err) {
-        if (isAbortError(err)) return;
-        setError(err instanceof Error ? err.message : 'Failed to run risk assessment.');
-      }
-    })();
-
-    return () => controller.abort();
-  }, [aiStage, error, hasRunRisk, hasStartedAiId, setError, setHasRunRisk, setStatus]);
-}
-
-function useRunningAnswerSubmit({
-  aiStage,
-  answer,
-  error,
-  isSubmittingAnswer,
-  setters,
-}: {
-  aiStage: string | null;
-  answer: string;
-  error: string | null;
-  isSubmittingAnswer: boolean;
-  setters: {
-    setAiStage: Dispatch<SetStateAction<string | null>>;
-    setAnswer: Dispatch<SetStateAction<string>>;
-    setError: Dispatch<SetStateAction<string | null>>;
-    setIsSubmittingAnswer: Dispatch<SetStateAction<boolean>>;
-    setQuestion: Dispatch<SetStateAction<string | null>>;
-    setStatus: Dispatch<SetStateAction<string>>;
-  };
-}) {
-  return useCallback(async () => {
-    const trimmed = answer.trim();
-    if (!trimmed || isSubmittingAnswer || error || isIdentifiedAiStage(aiStage)) return;
-
-    setters.setIsSubmittingAnswer(true);
-    setters.setStatus(ANSWER_PROCESSING_STATUS);
-    try {
-      const controller = new AbortController();
-      const url = buildAiIdRequestUrl(AI_ID_USER_ID, trimmed);
-      const data = assertAiIdResult(await postAiIdJson(url, controller.signal));
-      applyAiIdResponse(data, setters.setAiStage, setters.setQuestion, setters.setStatus);
-      setters.setAnswer('');
-    } catch (err) {
-      const message = mapThrownError(err, 'Failed to submit answer.');
-      if (message) setters.setError(message);
-    } finally {
-      setters.setIsSubmittingAnswer(false);
-    }
-  }, [aiStage, answer, error, isSubmittingAnswer, setters]);
-}
-
-export function useRunningRiskAssessment() {
+export function useRunningRiskAssessment(assessmentId: string) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const questionIdRef = useRef<string | null>(null);
+  const hasStartedRiskPhaseRef = useRef(false);
   const [status, setStatus] = useState('Starting…');
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState<string | null>(null);
   const [answer, setAnswer] = useState('');
   const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
-  const [aiStage, setAiStage] = useState<string | null>(null);
-  const [hasStartedAiId, setHasStartedAiId] = useState(false);
-  const [hasRunRisk, setHasRunRisk] = useState(false);
+  const [progressPercent, setProgressPercent] = useState<number | null>(null);
   const [isFirstResponseReady, setIsFirstResponseReady] = useState(false);
-  const [hasEnteredQa, setHasEnteredQa] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [isAwaitingQuestion, setIsAwaitingQuestion] = useState(false);
+  const [riskReport, setRiskReport] = useState<RiskReportPayload | null>(null);
+  const [exchangeLog, setExchangeLog] = useState<AssessmentRiskExchangeLogEntry[]>([]);
+  const [, setAiStage] = useState<string | null>(null);
+  const [, setAiIdResponseLog] = useState<AiIdResponseLogEntry[]>([]);
 
-  const loadSetters = useMemo(
-    () => ({ setAiStage, setError, setHasStartedAiId, setIsFirstResponseReady, setQuestion, setStatus }),
+  const flowSetters = useMemo<RunningFlowSetters>(
+    () => ({
+      setAiStage,
+      setError,
+      setExchangeLog,
+      setIsAwaitingQuestion,
+      setIsComplete,
+      setProgressPercent,
+      setQuestion,
+      setRiskReport,
+      setStatus,
+      setAiIdResponseLog,
+    }),
     [],
   );
-  const answerSetters = useMemo(
-    () => ({ setAiStage, setAnswer, setError, setIsSubmittingAnswer, setQuestion, setStatus }),
-    [],
-  );
 
-  useInitialAiIdLoad(loadSetters);
-  useRiskIdWhenIdentified(aiStage, error, hasRunRisk, hasStartedAiId, setError, setHasRunRisk, setStatus);
-  const submitAnswer = useRunningAnswerSubmit({ aiStage, answer, error, isSubmittingAnswer, setters: answerSetters });
+  useInitialRunningAssessmentLoad({
+    assessmentId,
+    user,
+    flowSetters,
+    questionIdRef,
+    hasStartedRiskPhaseRef,
+    setError,
+    setIsFirstResponseReady,
+    setStatus,
+  });
 
-  const enterQa = useCallback(() => {
-    setHasEnteredQa(true);
-    setStatus('');
-  }, []);
+  const submitAnswer = useRunningAnswerSubmit({
+    answer,
+    assessmentId,
+    error,
+    flowSetters,
+    hasStartedRiskPhaseRef,
+    isComplete,
+    isSubmittingAnswer,
+    questionIdRef,
+    setAnswer,
+    setError,
+    setIsFirstResponseReady,
+    setIsSubmittingAnswer,
+    setStatus,
+    user,
+  });
 
-  const showAnswerForm = !error && hasEnteredQa && !isIdentifiedAiStage(aiStage) && !isSubmittingAnswer;
-  const showNextButton = !error && isFirstResponseReady && !hasEnteredQa;
+  const openRiskReport = useCallback(() => {
+    if (!riskReport) return;
+    navigate(`/assessments/risk-report?assessmentId=${encodeURIComponent(riskReport.assessmentId)}`, {
+      state: { assessmentId: riskReport.assessmentId, report: riskReport },
+    });
+  }, [navigate, riskReport]);
+
+  const showAnswerForm = !error && isFirstResponseReady && !isComplete && !isSubmittingAnswer && !isAwaitingQuestion;
+  const completionAction = !error && isComplete
+    ? { label: 'View Report', onClick: openRiskReport, disabled: !riskReport }
+    : null;
 
   return {
     answer,
-    enterQa,
+    completionAction,
     error,
+    exchangeLog,
+    isComplete,
     isSubmittingAnswer,
+    progressPercent,
     question,
     showAnswerForm,
-    showNextButton,
     status,
     setAnswer,
     submitAnswer,

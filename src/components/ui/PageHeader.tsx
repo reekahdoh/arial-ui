@@ -63,7 +63,7 @@ function PageHeaderSeparator({ sx }: { sx?: SxProps<Theme> }) {
 
 function PageHeaderTitle({ title, sx }: { title: string; sx?: SxProps<Theme> }) {
   return (
-    <Typography variant="h2" component="h1" color="text.primary" sx={sx}>
+    <Typography variant="h2" component="h1" color="text.primary" sx={{ minWidth: 0, ...sx }}>
       {title}
     </Typography>
   );

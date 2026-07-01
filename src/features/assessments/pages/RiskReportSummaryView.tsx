@@ -6,9 +6,11 @@ import type { OverallRiskAssessment, RiskReportViewModel } from './riskReportTyp
 
 export function RiskReportSummaryView({
   viewModel,
+  onViewAssessment,
   onViewMitigations,
 }: {
   viewModel: RiskReportViewModel;
+  onViewAssessment: (risk: OverallRiskAssessment) => void;
   onViewMitigations: (risk: OverallRiskAssessment) => void;
 }) {
   return (
@@ -64,7 +66,11 @@ export function RiskReportSummaryView({
         )}
       </RiskReportInsetPanel>
 
-      <RiskReportOverallTable risks={viewModel.overallRiskAssessments} onViewMitigations={onViewMitigations} />
+      <RiskReportOverallTable
+        risks={viewModel.overallRiskAssessments}
+        onViewAssessment={onViewAssessment}
+        onViewMitigations={onViewMitigations}
+      />
 
       <RiskReportPriorityRisksSection
         title="Your highest priority risks are"

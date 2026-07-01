@@ -65,32 +65,18 @@ export function useWelcomeAuthPage() {
   const onRegister = registerForm.handleSubmit((values) =>
     runAuthAction(async () => {
       const { auth, db } = getFirebase();
-      const { loginName } = await registerWithEmail(auth, db, values.email, values.password);
+      await registerWithEmail(auth, db, values.email, values.password);
       registerForm.reset();
-      navigate('/home', {
-        replace: true,
-        state: {
-          registeredMessage: `Account created. Your username is "${loginName}" — use it or your email when you sign in.`,
-        },
-      });
+      navigate('/home', { replace: true });
     }),
   );
 
   const onGoogleSignIn = () =>
     runAuthAction(async () => {
       const { auth, db } = getFirebase();
-      const { newLoginName } = await signInWithGoogle(auth, db);
+      await signInWithGoogle(auth, db);
       if (isUsingFirebaseEmulators()) return;
-      navigate('/home', {
-        replace: true,
-        ...(newLoginName
-          ? {
-              state: {
-                registeredMessage: `Signed in with Google. Your username is "${newLoginName}" — use it or your email when you sign in.`,
-              },
-            }
-          : {}),
-      });
+      navigate('/home', { replace: true });
     });
 
   return {

@@ -14,9 +14,6 @@ import { createUserProfile } from './createUserProfile';
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-/** Session key for the post–redirect welcome message (Auth emulator uses redirect, not popup). */
-export const GOOGLE_SIGNIN_WELCOME_MESSAGE_KEY = 'aira_google_signin_welcome_message';
-
 /** Session key for surfacing redirect errors back on the login page. */
 export const AUTH_REDIRECT_ERROR_MESSAGE_KEY = 'aira_auth_redirect_error_message';
 

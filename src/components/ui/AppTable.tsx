@@ -21,6 +21,9 @@ export function AppTable({ children, 'aria-label': ariaLabel, tableProps }: AppT
         borderRadius: theme.shapeBorderRadius.sm,
         borderColor: theme.palette.border.subtle,
         boxShadow: theme.shadowsElevation.none,
+        maxWidth: '100%',
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
       })}
     >
       <Table size="small" stickyHeader aria-label={ariaLabel} {...tableProps}>

@@ -15,6 +15,8 @@ const FIREBASE_AUTH_ERROR_MESSAGES: Record<string, string> = {
   'auth/account-exists-with-different-credential':
     'An account already exists with this email using a different sign-in method.',
   'auth/operation-not-allowed': 'Google sign-in is not enabled for this project. Enable it in the Firebase console.',
+  'auth/configuration-not-found':
+    'Google sign-in is not set up for this Firebase project. In the console open Authentication → Sign-in method, enable Google, and save.',
 };
 
 const APP_AUTH_ERROR_MESSAGES: Record<string, string> = {

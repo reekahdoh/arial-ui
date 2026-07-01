@@ -2,22 +2,30 @@ import { Box } from '@mui/material';
 import { AppCard } from '../../../components/ui/AppCard';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { AssessmentQuestionAnswerContent } from './AssessmentQuestionAnswerContent';
+import { AssessingRiskAssessmentDiagnostics } from './AssessingRiskAssessmentDiagnostics';
 import { useAssessmentIdFromRoute } from './assessmentPageShared';
-import { PreparingRiskAssessmentDiagnostics } from './PreparingRiskAssessmentDiagnostics';
-import { usePreparingRiskAssessment } from './usePreparingRiskAssessment';
+import { useRunningRiskAssessment } from './useRunningRiskAssessment';
+
+const PREPARING_PHASE_DESCRIPTION =
+  "Here we'll consider the Authoritative References for this domain and understand what AI you are using.\nPlease answer the following questions so we can identify where AI can be used and assess the level of risk involved.";
+
+const RISK_PHASE_DESCRIPTION =
+  'Working to understand the level of risk in the system you are procuring or building.';
+
+function descriptionForProgress(progressPercent: number | null): string {
+  return (progressPercent ?? 0) >= 50 ? RISK_PHASE_DESCRIPTION : PREPARING_PHASE_DESCRIPTION;
+}
 
 export function PreparingRiskAssessmentPage() {
   const assessmentId = useAssessmentIdFromRoute();
-  const state = usePreparingRiskAssessment(assessmentId);
-  const showDiagnostics = Boolean(assessmentId.trim()) || state.aiIdResponseLog.length > 0;
+  const state = useRunningRiskAssessment(assessmentId);
+  const showDiagnostics = Boolean(assessmentId.trim()) || state.exchangeLog.length > 0;
 
   return (
     <>
       <PageHeader
-        title="Preparing Your Risk Assessment"
-        description={
-          "Here we'll consider the Authoritative References for this domain and to understand what AI you are using.\nPlease answer the following questions to help us really understand what you're trying to do. This will help us prepare everything for the final risk assessment."
-        }
+        title="Your Risk Assessment"
+        description={descriptionForProgress(state.progressPercent)}
         descriptionVariant="body1"
         descriptionSx={{ fontSize: '1rem', lineHeight: 1.45 }}
       />
@@ -27,7 +35,7 @@ export function PreparingRiskAssessmentPage() {
           completionAction={state.completionAction}
           error={state.error}
           isSubmittingAnswer={state.isSubmittingAnswer}
-          progressAriaLabel="Risk assessment preparation progress"
+          progressAriaLabel="Risk assessment progress"
           progressPercent={state.progressPercent}
           question={state.question}
           showAnswerForm={state.showAnswerForm}
@@ -39,7 +47,7 @@ export function PreparingRiskAssessmentPage() {
       {showDiagnostics ? (
         <AppCard sx={{ mt: 2 }}>
           <Box sx={{ width: '100%', maxWidth: 720, mx: 'auto' }}>
-            <PreparingRiskAssessmentDiagnostics assessmentId={assessmentId} aiIdResponseLog={state.aiIdResponseLog} />
+            <AssessingRiskAssessmentDiagnostics assessmentId={assessmentId} riskExchangeLog={state.exchangeLog} />
           </Box>
         </AppCard>
       ) : null}

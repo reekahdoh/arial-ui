@@ -1,26 +1,18 @@
-import { buildBackendProxyUrl } from '../../../services/backendProxy';
 import { progressPercentFromFields, stringFromUnknown } from './assessmentPageShared';
+import {
+  buildAssessmentAnswerRequestBody,
+  buildAssessmentAnswerRequestUrl,
+  postAssessmentAnswerJson,
+  postAssessmentAnswerWithBetterNetworkError,
+  type AssessmentAnswerJson,
+  type AssessmentAnswerRequestOptions,
+  type AssessmentAnswerResult,
+} from './assessmentAnswerApi';
 
 export { stringFromUnknown };
 
-export type AssessmentRiskJson = {
-  chat_id?: string;
-  message?: string;
-  history?: { role: string; content: string }[];
-  chat_stage?: string;
-  turn_type?: string;
-  complete?: boolean;
-  progress?: unknown;
-  progress_percentage?: unknown;
-  percentage?: unknown;
-};
-
-export type AssessmentRiskResult = {
-  ok: boolean;
-  status: number;
-  data: AssessmentRiskJson | null;
-  raw: string;
-};
+export type AssessmentRiskJson = AssessmentAnswerJson;
+export type AssessmentRiskResult = AssessmentAnswerResult;
 
 export type RiskReportPayload = {
   assessmentId: string;
@@ -54,67 +46,36 @@ export type AssessmentRiskExchangeLogEntry = {
 
 export function progressPercentFromResponse(data: AssessmentRiskJson | null): number | null {
   if (!data) return null;
-  return progressPercentFromFields(data, (parsed) => (parsed - 50) * 2);
+  return progressPercentFromFields(data, (parsed) => parsed * 100);
 }
 
-export function buildAssessmentRiskRequestUrl(assessmentId: string, userId: string, message: string) {
-  const params = new URLSearchParams();
-  params.set('user_id', userId);
-  params.set('message', message);
-  return `${buildBackendProxyUrl(`/assessments/${encodeURIComponent(assessmentId)}/risk`)}?${params.toString()}`;
+export function buildAssessmentRiskRequestUrl(
+  assessmentId: string,
+  userId: string,
+  message: string,
+  questionId?: string | null,
+) {
+  return buildAssessmentAnswerRequestUrl(assessmentId, { userId, message, questionId });
 }
 
-export function buildAssessmentRiskRequestBody(userId: string, message: string) {
-  return {
-    user_id: userId,
-    message,
-  };
+export function buildAssessmentRiskRequestBody(userId: string, message: string, questionId?: string | null) {
+  return buildAssessmentAnswerRequestBody({ userId, message, questionId });
 }
 
 export async function postAssessmentRisk(
   url: string,
   signal: AbortSignal,
-  body: { user_id: string; message: string },
+  options: AssessmentAnswerRequestOptions,
 ): Promise<AssessmentRiskResult> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json, text/plain, */*',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal,
-  });
-
-  const raw = (await res.text()).trim();
-  if (!raw) return { ok: res.ok, status: res.status, data: null, raw };
-
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') {
-      return { ok: res.ok, status: res.status, data: parsed as AssessmentRiskJson, raw };
-    }
-    return { ok: res.ok, status: res.status, data: null, raw };
-  } catch {
-    return { ok: res.ok, status: res.status, data: null, raw };
-  }
+  return postAssessmentAnswerJson(url, signal, options);
 }
 
 export async function postAssessmentRiskWithBetterNetworkError(
   url: string,
   signal: AbortSignal,
-  body: { user_id: string; message: string },
+  options: AssessmentAnswerRequestOptions,
 ) {
-  try {
-    return await postAssessmentRisk(url, signal, body);
-  } catch (err) {
-    if (err instanceof TypeError && err.message === 'Failed to fetch') {
-      throw new Error(
-        `Failed to fetch "${url}" (network/CORS). In dev, ensure the proxy is running and restart npm start after proxy changes.`,
-      );
-    }
-    throw err;
-  }
+  return postAssessmentAnswerWithBetterNetworkError(url, signal, options);
 }
 
 function normalizeResponseMessage(message: string | null | undefined): string {

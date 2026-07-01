@@ -6,6 +6,7 @@ import {
   getDocs,
   orderBy,
   query,
+  where,
   serverTimestamp,
   setDoc,
   type Timestamp,
@@ -104,6 +105,26 @@ function optionalReadFields(
   };
 }
 
+function requireAuthenticatedUid(): { db: ReturnType<typeof getFirebase>['db']; uid: string } {
+  if (!isFirebaseConfigured()) {
+    throw new Error('FIREBASE_NOT_CONFIGURED');
+  }
+  const { db, auth } = getFirebase();
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    throw new Error('NOT_AUTHENTICATED');
+  }
+  return { db, uid };
+}
+
+function ownedRiskAssessmentsQuery(db: ReturnType<typeof getFirebase>['db'], uid: string) {
+  return query(
+    collection(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS),
+    where('ownerUid', '==', uid),
+    orderBy('updatedAt', 'desc'),
+  );
+}
+
 function mapRiskAssessmentDoc(id: string, data: Record<string, unknown>): RiskAssessmentRead | null {
   const owner = stringFromDoc(data.owner);
   const companyName = stringFromDoc(data.companyName);
@@ -139,11 +160,8 @@ function mapRiskAssessmentDoc(id: string, data: Record<string, unknown>): RiskAs
 }
 
 export async function listRiskAssessments(): Promise<RiskAssessmentRead[]> {
-  if (!isFirebaseConfigured()) {
-    throw new Error('FIREBASE_NOT_CONFIGURED');
-  }
-  const { db } = getFirebase();
-  const snap = await getDocs(query(collection(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS), orderBy('updatedAt', 'desc')));
+  const { db, uid } = requireAuthenticatedUid();
+  const snap = await getDocs(ownedRiskAssessmentsQuery(db, uid));
   return snap.docs
     .map((d) => mapRiskAssessmentDoc(d.id, d.data() as Record<string, unknown>))
     .filter((d): d is RiskAssessmentRead => d !== null);
@@ -199,36 +217,34 @@ export async function deleteRiskAssessment(id: string): Promise<void> {
   await deleteDoc(doc(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS, id));
 }
 
-export async function upsertRiskAssessment(id: string, input: RiskAssessmentWrite): Promise<void> {
-  if (!isFirebaseConfigured()) {
-    throw new Error('FIREBASE_NOT_CONFIGURED');
-  }
-  const { db } = getFirebase();
-  const ref = doc(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS, id);
+function buildRiskAssessmentUpsertPayload(input: RiskAssessmentWrite, uid: string) {
   const title = input.name || (input.companyName ? `Risk assessment - ${input.companyName}` : 'Risk assessment');
   const customerContext = input.customerContext
     ? customerContextForFirestore(input.customerContext)
     : undefined;
-  await setDoc(
-    ref,
-    {
-      backendAssessmentId: input.backendAssessmentId,
-      name: input.name,
-      title,
-      owner: input.owner,
-      ownerName: input.owner,
-      ...(input.riskOwner ? { riskOwner: input.riskOwner } : {}),
-      companyName: input.companyName,
-      ...(input.domainId ? { domainId: input.domainId } : {}),
-      ...(input.domainName ? { domainName: input.domainName } : {}),
-      ...(input.domainKey ? { domainKey: input.domainKey } : {}),
-      ...(customerContext ? { customerContext } : {}),
-      severity: input.severity ?? 'medium',
-      workflowStatus: input.workflowStatus ?? 'draft',
-      updatedAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
-    },
-    { merge: true },
-  );
+  return {
+    backendAssessmentId: input.backendAssessmentId,
+    name: input.name,
+    title,
+    owner: input.owner,
+    ownerUid: uid,
+    ownerName: input.owner,
+    ...(input.riskOwner ? { riskOwner: input.riskOwner } : {}),
+    companyName: input.companyName,
+    ...(input.domainId ? { domainId: input.domainId } : {}),
+    ...(input.domainName ? { domainName: input.domainName } : {}),
+    ...(input.domainKey ? { domainKey: input.domainKey } : {}),
+    ...(customerContext ? { customerContext } : {}),
+    severity: input.severity ?? 'medium',
+    workflowStatus: input.workflowStatus ?? 'draft',
+    updatedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
+  };
+}
+
+export async function upsertRiskAssessment(id: string, input: RiskAssessmentWrite): Promise<void> {
+  const { db, uid } = requireAuthenticatedUid();
+  const ref = doc(db, FIRESTORE_COLLECTION_RISK_ASSESSMENTS, id);
+  await setDoc(ref, buildRiskAssessmentUpsertPayload(input, uid), { merge: true });
 }
 

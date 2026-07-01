@@ -35,6 +35,13 @@ export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+export const ASSESSMENT_BEING_PREPARED_STATUS = 'Your Assessment is being prepared.';
+
+export const ASSESSMENT_REPORT_COMPLETE_STATUS = 'Your report is complete.';
+
+/** Poll interval while waiting for a question_id or COMPLETED after question_id is null. */
+export const ASSESSMENT_ANSWER_POLL_DELAY_MS = 30_000;
+
 function parseProgressValue(value: unknown): number | null {
   const parsed =
     typeof value === 'number'
@@ -47,7 +54,7 @@ function parseProgressValue(value: unknown): number | null {
 
 export function progressPercentFromFields(
   fields: { progress?: unknown; progress_percentage?: unknown; percentage?: unknown },
-  transform: (parsed: number) => number,
+  transform: (parsed: number) => number = (parsed) => parsed,
 ): number | null {
   const parsed =
     parseProgressValue(fields.progress) ??

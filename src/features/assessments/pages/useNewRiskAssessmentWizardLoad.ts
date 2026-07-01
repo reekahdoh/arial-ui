@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { emptyProjectRequirements, type ProjectRequirementsFields } from '../../../domain/projectRequirements';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useRiskAssessmentRun } from '../../../contexts/RiskAssessmentRunContext';
+import { resolveAuthenticatedUsername } from '../../../services/auth/resolveAuthenticatedUsername';
 import { isFirebaseConfigured } from '../../../services/firebase';
 import { getRiskAssessment } from '../../../services/assessments/firestoreRiskAssessments';
 import { domainKeyFromName } from './newRiskAssessmentWizardHelpers';
@@ -20,7 +22,6 @@ export function applyWizardDraft(
   },
 ) {
   setters.setName(draft.name ?? '');
-  setters.setOwner(draft.owner ?? '');
   setters.setRiskOwner(draft.riskOwner ?? '');
   setters.setCompanyName(draft.companyName ?? '');
   setters.setDomain(draft.domain ?? '');
@@ -50,7 +51,6 @@ export function useWizardInitialLoad(
         const remote = await getRiskAssessment(id);
         if (!remote) return;
         setters.setName(remote.name ?? '');
-        setters.setOwner(remote.owner);
         setters.setRiskOwner(remote.riskOwner ?? '');
         setters.setCompanyName(remote.companyName);
         setters.setProjectRequirements(remote.customerContext ?? emptyProjectRequirements());
@@ -66,6 +66,25 @@ export function useWizardInitialLoad(
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+}
+
+/** Owner is always the signed-in user; resolved from profile / auth metadata. */
+export function useWizardOwnerFromAuth(setOwner: (owner: string) => void) {
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    void (async () => {
+      const username = await resolveAuthenticatedUsername(user);
+      if (!cancelled) setOwner(username);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setOwner, user]);
 }
 
 export function useRunDraftSync(

@@ -1,6 +1,24 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function riskAssessmentDoc(assessmentId) {
+      return get(/databases/$(database)/documents/RiskAssessment/$(assessmentId));
+    }
+
+    function ownsRiskAssessment(assessmentId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/RiskAssessment/$(assessmentId))
+        && riskAssessmentDoc(assessmentId).data.ownerUid == request.auth.uid;
+    }
+
+    function isRiskAssessmentOwner() {
+      return isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
     // Login-name → email lookup for sign-in (must be readable before authentication).
     // Contains only lowercase email + uid; tighten further if you add App Check or a backend proxy.
     match /loginNames/{name} {
@@ -14,27 +32,28 @@ service cloud.firestore {
     }
 
     match /userProfiles/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create, update: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
       allow delete: if false;
     }
 
-    // Risk assessments captured by authenticated users.
+    // Risk assessments: authenticated owners only.
     match /RiskAssessment/{assessmentId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null
+      allow read: if isRiskAssessmentOwner();
+      allow create: if isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.keys().hasAny(['owner', 'companyName'])
         && request.resource.data.owner is string
         && request.resource.data.companyName is string;
-      allow delete: if request.auth != null;
+      allow update: if isRiskAssessmentOwner()
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if isRiskAssessmentOwner();
     }
 
     // Domain reference data (seeded with AI + WHO).
     match /Domain/{domainId} {
-      // Public read: small fixed reference list (AI / WHO). Writes stay restricted.
-      allow get, list: if true;
-      // Allow authenticated clients to seed the fixed domain docs once.
-      allow create, update: if request.auth != null
+      allow get, list: if isSignedIn();
+      allow create, update: if isSignedIn()
         && domainId in ['ai', 'who']
         && request.resource.data.keys().hasAll(['name'])
         && request.resource.data.name in ['AI', 'WHO'];
@@ -43,8 +62,8 @@ service cloud.firestore {
 
     // References linked to a Domain doc via domainId.
     match /AuthorativeReference/{referenceId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
         && request.resource.data.keys().hasAll(['domainId', 'kind', 'value'])
         && request.resource.data.domainId is string
         && request.resource.data.kind in ['website', 'document']
@@ -54,13 +73,14 @@ service cloud.firestore {
 
     // Customer-specific references linked to a RiskAssessment doc via assessmentId.
     match /CustomerDomainReference/{referenceId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null
+      allow read: if isSignedIn() && ownsRiskAssessment(resource.data.assessmentId);
+      allow create, update: if isSignedIn()
+        && ownsRiskAssessment(request.resource.data.assessmentId)
         && request.resource.data.keys().hasAll(['assessmentId', 'kind', 'value'])
         && request.resource.data.assessmentId is string
         && request.resource.data.kind in ['website', 'document']
         && request.resource.data.value is string;
-      allow delete: if request.auth != null;
+      allow delete: if isSignedIn() && ownsRiskAssessment(resource.data.assessmentId);
     }
   }
 }

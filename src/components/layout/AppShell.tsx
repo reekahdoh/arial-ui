@@ -16,6 +16,9 @@ const contentSx = {
   maxWidth: layout.contentMaxWidth,
   mx: 'auto',
   width: '100%',
+  minWidth: 0,
+  overflowX: 'hidden',
+  boxSizing: 'border-box',
 } as const;
 
 const footerSx = {

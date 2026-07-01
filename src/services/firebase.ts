@@ -25,7 +25,11 @@ const EMULATOR_DEMO_WEB_CONFIG = {
 } as const;
 
 function shouldUseEmulators(): boolean {
-  return process.env.REACT_APP_USE_FIREBASE_EMULATORS === 'true';
+  // .env.local is loaded for production builds too; never use emulators on the live site.
+  return (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.REACT_APP_USE_FIREBASE_EMULATORS === 'true'
+  );
 }
 
 /** True when the app targets the Firebase Emulator Suite (Auth/Firestore). */

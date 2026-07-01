@@ -5,6 +5,8 @@ import type { RiskAssessmentRead } from '../../../services/assessments/firestore
 import { listRiskAssessments } from '../../../services/assessments/firestoreRiskAssessments';
 import {
   getAssessmentId,
+  getAssessmentRiskImpact,
+  getAssessmentRiskLikelihood,
   getAssessmentStatus,
   sortAssessments,
   type AssessmentStatusState,
@@ -24,7 +26,10 @@ function useAssessmentBackendStatuses(
       Object.fromEntries(
         rows.map((row) => {
           const assessmentId = getAssessmentId(row);
-          return [row.id, { status: null, assessmentId: assessmentId || null, isLoading: Boolean(assessmentId) }];
+          return [
+            row.id,
+            { status: null, riskImpact: null, riskLikelihood: null, assessmentId: assessmentId || null, isLoading: Boolean(assessmentId) },
+          ];
         }),
       ),
     );
@@ -34,16 +39,18 @@ function useAssessmentBackendStatuses(
         try {
           const result = await fetchBackendAssessmentById(assessmentId, controller.signal);
           const status = getAssessmentStatus(result.data);
+          const riskImpact = getAssessmentRiskImpact(result.data);
+          const riskLikelihood = getAssessmentRiskLikelihood(result.data);
           if (controller.signal.aborted) return;
           setStatusByRowId((prev) => ({
             ...prev,
-            [rowId]: { status, assessmentId, isLoading: false },
+            [rowId]: { status, riskImpact, riskLikelihood, assessmentId, isLoading: false },
           }));
         } catch (err) {
           if (err instanceof DOMException && err.name === 'AbortError') return;
           setStatusByRowId((prev) => ({
             ...prev,
-            [rowId]: { status: null, assessmentId, isLoading: false },
+            [rowId]: { status: null, riskImpact: null, riskLikelihood: null, assessmentId, isLoading: false },
           }));
         }
       })();

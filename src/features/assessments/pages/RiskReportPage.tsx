@@ -1,5 +1,6 @@
 import { AppCard } from '../../../components/ui/AppCard';
 import { RiskReportBody } from './RiskReportBody';
+import { RiskReportAssessmentDialog } from './RiskReportAssessmentDialog';
 import { RiskReportMitigationsDialog } from './RiskReportMitigationsDialog';
 import { RiskReportPageHeader } from './RiskReportPageHeader';
 import { useRiskReportPage } from './useRiskReportPage';
@@ -22,9 +23,14 @@ export function RiskReportPage() {
           apiReport={report.apiReport}
           detailedReport={report.detailedReport}
           viewModel={report.viewModel}
+          onViewAssessment={report.setSelectedAssessmentRisk}
           onViewMitigations={report.setSelectedMitigationRisk}
         />
       </AppCard>
+      <RiskReportAssessmentDialog
+        risk={report.selectedAssessmentRisk}
+        onClose={() => report.setSelectedAssessmentRisk(null)}
+      />
       <RiskReportMitigationsDialog risk={report.selectedMitigationRisk} onClose={() => report.setSelectedMitigationRisk(null)} />
     </>
   );

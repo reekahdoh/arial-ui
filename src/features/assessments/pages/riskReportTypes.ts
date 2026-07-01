@@ -35,13 +35,22 @@ export type HighRiskSummary = {
   risks: RiskDetail[];
 };
 
+export type RiskMitigation = {
+  summary: string;
+  requirement: string | null;
+  acceptance: string | null;
+  evidence: string | null;
+};
+
 export type OverallRiskAssessment = {
   key: string;
   name: string;
   description: string | null;
   impact: string | null;
   likelihood: string | null;
-  mitigations: string[];
+  score: string | null;
+  rationale: string | null;
+  mitigations: RiskMitigation[];
 };
 
 export type ReportSource = {

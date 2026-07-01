@@ -67,7 +67,15 @@ function CustomerDomainWizardStep({ paths, nextButton }: Pick<WizardStepContentP
 
 const TEXT_FIELD_STEPS: Record<
   Exclude<WizardStep, 'domain' | 'customerDomain' | 'review'>,
-  { title: string; description: string; label: string; placeholder: string; value: (f: WizardStepContentProps['fields']) => string; onChange: (f: WizardStepContentProps['fields']) => (v: string) => void }
+  {
+    title: string;
+    description: string;
+    label: string;
+    placeholder: string;
+    value: (f: WizardStepContentProps['fields']) => string;
+    onChange?: (f: WizardStepContentProps['fields']) => (v: string) => void;
+    readOnly?: boolean;
+  }
 > = {
   name: {
     title: 'Name',
@@ -81,9 +89,9 @@ const TEXT_FIELD_STEPS: Record<
     title: 'Owner',
     description: 'Responsible for setting up this Risk Assessment',
     label: 'Owner',
-    placeholder: 'e.g. Jane Doe',
+    placeholder: 'Loading…',
     value: (f) => f.owner,
-    onChange: (f) => f.setOwner,
+    readOnly: true,
   },
   riskOwner: {
     title: 'Risk Owner',
@@ -116,7 +124,8 @@ function TextFieldWizardStep({
       label={config.label}
       value={config.value(fields)}
       placeholder={config.placeholder}
-      onChange={config.onChange(fields)}
+      onChange={config.onChange?.(fields)}
+      readOnly={config.readOnly}
       nextButton={nextButton}
     />
   );

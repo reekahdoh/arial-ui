@@ -2,11 +2,7 @@ import type { User } from 'firebase/auth';
 import { getRedirectResult, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { getFirebase, isFirebaseConfigured } from '../services/firebase';
-import {
-  AUTH_REDIRECT_ERROR_MESSAGE_KEY,
-  ensureGoogleUserProfile,
-  GOOGLE_SIGNIN_WELCOME_MESSAGE_KEY,
-} from '../services/auth/signInWithGoogle';
+import { AUTH_REDIRECT_ERROR_MESSAGE_KEY, ensureGoogleUserProfile } from '../services/auth/signInWithGoogle';
 import { mapAuthErrorMessage } from '../services/auth/mapAuthErrorMessage';
 
 export type AuthContextValue = {
@@ -40,13 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await getRedirectResult(auth);
         if (result?.user) {
           try {
-            const profile = await ensureGoogleUserProfile(auth, db, result.user);
-            if (profile.newLoginName) {
-              sessionStorage.setItem(
-                GOOGLE_SIGNIN_WELCOME_MESSAGE_KEY,
-                `Signed in with Google. Your username is "${profile.newLoginName}" — use it or your email when you sign in.`,
-              );
-            }
+            await ensureGoogleUserProfile(auth, db, result.user);
           } catch {
             // Profile setup may sign the user out; auth state listener reflects final state.
           }

@@ -13,11 +13,48 @@ import { riskLevelCellSx } from '../../../constants/riskStatus';
 import { riskReportSectionSx } from './riskReportStyles';
 import type { OverallRiskAssessment } from './riskReportTypes';
 
+function AssessmentLevelButton({
+  level,
+  label,
+  onClick,
+}: {
+  level: string | null;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      variant="text"
+      size="small"
+      onClick={onClick}
+      aria-label={`View ${label} details`}
+      sx={(theme) => ({
+        ...riskLevelCellSx(theme, level),
+        minWidth: '100%',
+        justifyContent: 'flex-start',
+        borderRadius: 0,
+        px: 2,
+        py: 1,
+        fontWeight: 700,
+        textTransform: 'none',
+        '&:hover': {
+          bgcolor: riskLevelCellSx(theme, level).bgcolor,
+          filter: 'brightness(0.95)',
+        },
+      })}
+    >
+      {level ?? 'UNKNOWN'}
+    </Button>
+  );
+}
+
 export function RiskReportOverallTable({
   risks,
+  onViewAssessment,
   onViewMitigations,
 }: {
   risks: OverallRiskAssessment[];
+  onViewAssessment: (risk: OverallRiskAssessment) => void;
   onViewMitigations: (risk: OverallRiskAssessment) => void;
 }) {
   return (
@@ -34,6 +71,7 @@ export function RiskReportOverallTable({
                 <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Impact</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Likelihood</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Confidence</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Mitigations</TableCell>
               </TableRow>
             </TableHead>
@@ -42,10 +80,21 @@ export function RiskReportOverallTable({
                 <TableRow key={risk.key}>
                   <TableCell>{risk.name}</TableCell>
                   <TableCell>{risk.description ?? 'Not provided'}</TableCell>
-                  <TableCell sx={(theme) => riskLevelCellSx(theme, risk.impact)}>{risk.impact ?? 'UNKNOWN'}</TableCell>
-                  <TableCell sx={(theme) => riskLevelCellSx(theme, risk.likelihood)}>
-                    {risk.likelihood ?? 'UNKNOWN'}
+                  <TableCell sx={{ p: 0 }}>
+                    <AssessmentLevelButton
+                      level={risk.impact}
+                      label="impact"
+                      onClick={() => onViewAssessment(risk)}
+                    />
                   </TableCell>
+                  <TableCell sx={{ p: 0 }}>
+                    <AssessmentLevelButton
+                      level={risk.likelihood}
+                      label="likelihood"
+                      onClick={() => onViewAssessment(risk)}
+                    />
+                  </TableCell>
+                  <TableCell>{risk.score ?? 'UNKNOWN'}</TableCell>
                   <TableCell>
                     <Button
                       variant="text"

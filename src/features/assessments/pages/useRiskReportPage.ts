@@ -36,6 +36,7 @@ export function useRiskReportPage() {
     isLoading: false,
   });
   const [selectedMitigationRisk, setSelectedMitigationRisk] = useState<OverallRiskAssessment | null>(null);
+  const [selectedAssessmentRisk, setSelectedAssessmentRisk] = useState<OverallRiskAssessment | null>(null);
 
   const locationState = location.state as LocationState | null;
   const reportFromState =
@@ -115,6 +116,8 @@ export function useRiskReportPage() {
     viewModel,
     selectedMitigationRisk,
     setSelectedMitigationRisk,
+    selectedAssessmentRisk,
+    setSelectedAssessmentRisk,
     generateDetailedReport,
     viewDetailedReport,
   };

@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User } from 'firebase/auth';
-import {
-  AUTH_REDIRECT_ERROR_MESSAGE_KEY,
-  GOOGLE_SIGNIN_WELCOME_MESSAGE_KEY,
-} from '../../../services/auth/signInWithGoogle';
+import { AUTH_REDIRECT_ERROR_MESSAGE_KEY } from '../../../services/auth/signInWithGoogle';
 
 export function useWelcomeAuthRedirects(
   loading: boolean,
@@ -23,12 +20,7 @@ export function useWelcomeAuthRedirects(
 
   useEffect(() => {
     if (!loading && user) {
-      const redirectMsg = sessionStorage.getItem(GOOGLE_SIGNIN_WELCOME_MESSAGE_KEY);
-      if (redirectMsg) sessionStorage.removeItem(GOOGLE_SIGNIN_WELCOME_MESSAGE_KEY);
-      navigate('/home', {
-        replace: true,
-        ...(redirectMsg ? { state: { registeredMessage: redirectMsg } } : {}),
-      });
+      navigate('/home', { replace: true });
     }
   }, [loading, user, navigate]);
 }

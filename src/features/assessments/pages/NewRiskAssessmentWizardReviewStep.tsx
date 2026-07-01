@@ -49,7 +49,6 @@ function ReviewTextFields({
   name,
   setName,
   owner,
-  setOwner,
   riskOwner,
   setRiskOwner,
   companyName,
@@ -59,7 +58,7 @@ function ReviewTextFields({
   assessmentId,
 }: Pick<
   ReviewWizardStepProps,
-  'name' | 'setName' | 'owner' | 'setOwner' | 'riskOwner' | 'setRiskOwner' | 'companyName' | 'setCompanyName' | 'domain' | 'setDomain' | 'assessmentId'
+  'name' | 'setName' | 'owner' | 'riskOwner' | 'setRiskOwner' | 'companyName' | 'setCompanyName' | 'domain' | 'setDomain' | 'assessmentId'
 >) {
   return (
     <>
@@ -67,7 +66,16 @@ function ReviewTextFields({
         <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
       </RiskAssessmentOvalSection>
       <RiskAssessmentOvalSection title="Owner" description="Responsible for setting up this Risk Assessment">
-        <TextField label="Owner" value={owner} onChange={(e) => setOwner(e.target.value)} fullWidth />
+        <TextField
+          label="Owner"
+          value={owner}
+          fullWidth
+          slotProps={{
+            input: {
+              readOnly: true,
+            },
+          }}
+        />
       </RiskAssessmentOvalSection>
       <RiskAssessmentOvalSection
         title="Risk Owner"

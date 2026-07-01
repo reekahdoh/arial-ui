@@ -1,2 +1,2 @@
 export const FIREBASE_NOT_CONFIGURED_MESSAGE =
-  'Firebase is not configured. Add REACT_APP_FIREBASE_* keys to `.env.local`.';
+  'Firebase is not configured. Set REACT_APP_FIREBASE_* in `.env` or `.env.local`, then run `npm run build` and redeploy hosting.';

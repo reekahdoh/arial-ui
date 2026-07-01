@@ -45,7 +45,7 @@ export const spacingUnit = 8;
 
 export const layout = {
   sidebarWidth: 232,
-  topBarHeight: 52,
+  topBarHeight: 104,
   contentMaxWidth: 1200,
   contentPaddingX: 3,
   contentPaddingY: 3,

@@ -7,12 +7,14 @@ export function RiskReportBody({
   apiReport,
   detailedReport,
   viewModel,
+  onViewAssessment,
   onViewMitigations,
 }: {
   assessmentId: string;
   apiReport: ReportSource;
   detailedReport: DetailedReportState;
   viewModel: RiskReportViewModel | null;
+  onViewAssessment: (risk: OverallRiskAssessment) => void;
   onViewMitigations: (risk: OverallRiskAssessment) => void;
 }) {
   return (
@@ -30,7 +32,11 @@ export function RiskReportBody({
       ) : !viewModel ? (
         <Alert severity="warning">{apiReport.error ?? 'No completed risk report was found for this assessment.'}</Alert>
       ) : (
-        <RiskReportSummaryView viewModel={viewModel} onViewMitigations={onViewMitigations} />
+        <RiskReportSummaryView
+          viewModel={viewModel}
+          onViewAssessment={onViewAssessment}
+          onViewMitigations={onViewMitigations}
+        />
       )}
     </Box>
   );

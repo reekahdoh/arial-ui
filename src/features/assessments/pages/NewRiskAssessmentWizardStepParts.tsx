@@ -18,6 +18,7 @@ export function WizardTextFieldStep({
   value,
   placeholder,
   onChange,
+  readOnly = false,
   nextButton,
 }: {
   title: string;
@@ -25,7 +26,8 @@ export function WizardTextFieldStep({
   label: string;
   value: string;
   placeholder: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  readOnly?: boolean;
   nextButton: ReactNode;
 }) {
   return (
@@ -34,10 +36,15 @@ export function WizardTextFieldStep({
         <TextField
           label={label}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={readOnly ? undefined : (e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           fullWidth
-          autoFocus
+          autoFocus={!readOnly}
+          slotProps={{
+            input: {
+              readOnly,
+            },
+          }}
         />
       </RiskAssessmentOvalSection>
       {nextButton}
