@@ -71,6 +71,7 @@
     "@types/react-dom": "^19.2.3",
     "firebase-admin": "^13.8.0",
     "firebase-tools": "^13.35.0",
+    "google-auth-library": "^9.15.1",
     "typescript": "^4.9.5"
   }
 }

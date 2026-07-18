@@ -1,0 +1,14 @@
+{
+  "name": "arial-ui-functions",
+  "description": "Authenticated same-origin proxy to private Cloud Run AIRA API",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.3.0",
+    "google-auth-library": "^9.15.1"
+  },
+  "private": true
+}

@@ -2,6 +2,7 @@ import {
   buildBackendAssessmentRequirementsFetchUrl,
   fetchBackendAssessmentRequirements,
 } from './backendAssessments';
+import { backendFetch } from '../backendProxy';
 import { getRiskAssessment } from './firestoreRiskAssessments';
 
 export type RequirementsFileRecord = {
@@ -75,7 +76,7 @@ async function fetchDocumentContentFromApi(
   signal?: AbortSignal,
 ): Promise<{ content: string; displayName: string }> {
   const fileUrl = buildBackendRequirementsDocumentFileUrl(assessmentId, record.doc_id);
-  const fileRes = await fetch(fileUrl, {
+  const fileRes = await backendFetch(fileUrl, {
     signal,
     headers: { Accept: 'text/plain, application/octet-stream, */*' },
   });

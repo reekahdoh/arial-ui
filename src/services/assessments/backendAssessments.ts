@@ -1,4 +1,4 @@
-import { buildBackendProxyUrl } from '../backendProxy';
+import { backendFetch, buildBackendProxyUrl } from '../backendProxy';
 
 export interface CreateBackendAssessmentInput {
   userId: string;
@@ -13,12 +13,13 @@ export interface CreateBackendAssessmentResult {
   raw: string;
 }
 
+/** Collection URL ends with `/` to avoid slash-redirect issues on some gateways. */
 function getBackendAssessmentsBaseUrl(): string {
-  return buildBackendProxyUrl('/assessments');
+  return buildBackendProxyUrl('/assessments/');
 }
 
 export function buildBackendAssessmentUrl(assessmentId: string): string {
-  return `${getBackendAssessmentsBaseUrl()}/${encodeURIComponent(assessmentId)}`;
+  return `${getBackendAssessmentsBaseUrl()}${encodeURIComponent(assessmentId)}`;
 }
 
 export function buildBackendAssessmentReportUrl(assessmentId: string, userId: string): string {
@@ -152,7 +153,7 @@ export async function fetchBackendAssessmentById(
   signal?: AbortSignal,
 ): Promise<FetchBackendAssessmentResult> {
   const url = buildBackendAssessmentUrl(assessmentId.trim());
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'GET',
     headers: { Accept: 'application/json, text/plain, */*' },
     signal,
@@ -166,7 +167,7 @@ export async function fetchBackendAssessmentRequirements(
   signal?: AbortSignal,
 ): Promise<FetchBackendAssessmentResult> {
   const url = buildBackendAssessmentRequirementsFetchUrl(assessmentId);
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'GET',
     headers: { Accept: 'application/json, text/plain, */*' },
     signal,
@@ -181,7 +182,7 @@ export async function fetchBackendAssessmentReport(
   signal?: AbortSignal,
 ): Promise<FetchBackendAssessmentResult> {
   const url = buildBackendAssessmentReportUrl(assessmentId, input.userId);
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'GET',
     headers: { Accept: 'application/json, text/plain, */*' },
     signal,
@@ -196,7 +197,7 @@ export async function generateBackendAssessmentReport(
   signal?: AbortSignal,
 ): Promise<FetchBackendAssessmentResult> {
   const url = buildBackendAssessmentReportUrl(assessmentId, input.userId);
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'POST',
     headers: {
       Accept: 'application/json, text/plain, */*',
@@ -214,7 +215,7 @@ export async function createBackendAssessment(
   signal?: AbortSignal,
 ): Promise<CreateBackendAssessmentResult> {
   const url = buildCreateBackendAssessmentUrl(input);
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'POST',
     headers: { Accept: 'application/json' },
     body: '',
@@ -241,7 +242,7 @@ export async function putBackendAssessmentRequirements(
   const url = buildAssessmentRequirementsUrl(assessmentId, input);
   const body = new FormData();
   body.set('file', input.file, input.file.name);
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'PUT',
     headers: { Accept: 'application/json' },
     body,

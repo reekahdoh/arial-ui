@@ -1,4 +1,4 @@
-import { buildBackendProxyUrl } from '../../../services/backendProxy';
+import { backendFetch, buildBackendProxyUrl } from '../../../services/backendProxy';
 
 export type AssessmentAnswerJson = {
   chat_id?: string;
@@ -56,7 +56,7 @@ export async function postAssessmentAnswerJson(
   signal: AbortSignal,
   options: AssessmentAnswerRequestOptions,
 ): Promise<AssessmentAnswerResult> {
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'POST',
     headers: {
       Accept: 'application/json, text/plain, */*',

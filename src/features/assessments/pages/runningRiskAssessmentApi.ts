@@ -1,4 +1,4 @@
-import { buildBackendProxyUrl } from '../../../services/backendProxy';
+import { backendFetch, buildBackendProxyUrl } from '../../../services/backendProxy';
 import { IDENTIFIED_STAGE, IDENTIFYING_STAGE, normalizeChatStage } from './preparingRiskAssessmentApi';
 
 export { IDENTIFIED_STAGE, IDENTIFYING_STAGE };
@@ -40,7 +40,7 @@ export function buildAiIdRequestUrl(userId: string, message: string) {
 }
 
 export async function postAiIdJson(url: string, signal: AbortSignal): Promise<AiIdResult> {
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'POST',
     headers: { Accept: 'application/json' },
     body: '',
@@ -68,7 +68,7 @@ export function getRiskIdUrl(): string {
 }
 
 export async function postRiskIdText(url: string, signal: AbortSignal) {
-  const res = await fetch(url, {
+  const res = await backendFetch(url, {
     method: 'POST',
     headers: { Accept: 'application/json, text/plain, */*' },
     signal,
