@@ -10,7 +10,7 @@ In the project directory, you can run:
 
 This repo includes a small idempotent seed script to ensure required reference data exists.
 
-- `Domain` collection: `ai → { name: "AI" }`, `who → { name: "WHO" }`
+- `Domain` collection: `ai → { name: "AI" }`, `medical-device → { name: "Medical Device" }`
 
 The app also auto-seeds these two Domain docs once a user is signed in (so a fresh emulator starts clean).
 
@@ -29,8 +29,44 @@ You may also see any lint errors in the console.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
+Launches the Jest unit test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### Staging environment and Playwright E2E
+
+Staging is a **separate Firebase project** (`arial-ui-staging` in `.firebaserc`) so test users and Firestore data stay out of production. Smoke tests hit Auth + Firestore + Hosting only; they do not complete wizard save, so they do not create assessments in the production Cloud Run API.
+
+**One-time setup** (requires `gcloud` + Firebase CLI login):
+
+```
+gcloud auth login
+gcloud auth application-default login
+npx firebase login
+npm run setup:staging
+```
+
+The script creates (or reuses) GCP project `arial-ui-staging`, links billing, enables Auth/Firestore/Functions APIs, writes `.env.staging` and `functions/.env.arial-ui-staging`, creates the E2E user (`e2e` / password in `.env.staging`), seeds `Domain/ai` and `Domain/medical-device`, and grants the staging Functions service account `roles/run.invoker` on the production Cloud Run API.
+
+If you have more than one billing account, pass `--billing-account=XXXXXX-XXXXXX-XXXXXX` (or set `BILLING_ACCOUNT`). Then deploy:
+
+```
+npm run deploy:staging
+```
+
+If Firebase assigned a different project id, pass `--project=your-id` (the script updates `.firebaserc`).
+
+**Run tests against staging** (assumes staging is already deployed):
+
+```
+npx playwright install chromium
+npm run test:e2e
+```
+
+`playwright.config.ts` loads `.env.staging` when present (`PLAYWRIGHT_BASE_URL`, `E2E_LOGIN_NAME`, `E2E_PASSWORD`). Interactive: `npm run test:e2e:ui`.
+
+**CI:** `.github/workflows/e2e-staging.yml` runs on `workflow_dispatch` and pushes to the `staging` branch. Add GitHub secrets `PLAYWRIGHT_BASE_URL`, `E2E_LOGIN_NAME`, and `E2E_PASSWORD`.
+
+To generate more smoke tests from a feature, ask the agent to use the `generate-e2e-tests` skill (`.cursor/skills/generate-e2e-tests/`).
 
 ### `npm run build`
 

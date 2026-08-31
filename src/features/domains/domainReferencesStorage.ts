@@ -1,4 +1,4 @@
-type DomainKey = 'ai' | 'who';
+type DomainKey = 'ai' | 'medical-device';
 
 export type ReferenceKind = 'website' | 'document';
 

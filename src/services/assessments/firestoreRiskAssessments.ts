@@ -26,7 +26,7 @@ export interface RiskAssessmentWrite {
   companyName: string;
   domainId?: string;
   domainName?: string;
-  domainKey?: 'ai' | 'who';
+  domainKey?: 'ai' | 'medical-device';
   customerContext?: ProjectRequirementsFields;
   severity?: RiskSeverity;
   workflowStatus?: WorkflowStatus;
@@ -41,7 +41,7 @@ export interface RiskAssessmentRead extends AssessmentSummary {
   companyName: string;
   domainId?: string;
   domainName?: string;
-  domainKey?: 'ai' | 'who';
+  domainKey?: 'ai' | 'medical-device';
   customerContext?: ProjectRequirementsFields;
 }
 
@@ -49,8 +49,8 @@ function stringFromDoc(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
-function domainKeyFromUnknown(value: unknown): 'ai' | 'who' | undefined {
-  return value === 'ai' || value === 'who' ? value : undefined;
+function domainKeyFromUnknown(value: unknown): 'ai' | 'medical-device' | undefined {
+  return value === 'ai' || value === 'medical-device' ? value : undefined;
 }
 
 function severityFromUnknown(value: unknown): RiskSeverity {
@@ -90,7 +90,7 @@ function optionalReadFields(
     backendAssessmentId?: string;
     name?: string;
     riskOwner?: string;
-    domainKey?: 'ai' | 'who';
+    domainKey?: 'ai' | 'medical-device';
     customerContext?: ProjectRequirementsFields;
   },
 ): Partial<RiskAssessmentRead> {

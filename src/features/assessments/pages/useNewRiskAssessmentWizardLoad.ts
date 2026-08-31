@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { emptyProjectRequirements, type ProjectRequirementsFields } from '../../../domain/projectRequirements';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRiskAssessmentRun } from '../../../contexts/RiskAssessmentRunContext';
@@ -8,7 +8,8 @@ import { isFirebaseConfigured } from '../../../services/firebase';
 import { getRiskAssessment } from '../../../services/assessments/firestoreRiskAssessments';
 import { domainKeyFromName } from './newRiskAssessmentWizardHelpers';
 import { readWizardDraft } from './newRiskAssessmentWizardStorage';
-import type { DomainKey, WizardDraftStorage, WizardStep } from './newRiskAssessmentWizardTypes';
+import type { DomainKey, WizardDraftStorage, WizardPreload, WizardStep } from './newRiskAssessmentWizardTypes';
+import { WIZARD_PRELOAD_STATE_KEY } from './newRiskAssessmentWizardTypes';
 
 export function applyWizardDraft(
   draft: WizardDraftStorage,
@@ -30,21 +31,34 @@ export function applyWizardDraft(
 
 export function useWizardInitialLoad(
   setAssessmentId: (id: string) => void,
+  setIsLoadingExisting: (v: boolean) => void,
   setters: Parameters<typeof applyWizardDraft>[1] & {
     setProjectRequirements: (v: ProjectRequirementsFields) => void;
   },
 ) {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   useEffect(() => {
     const id = searchParams.get('assessmentId')?.trim() ?? '';
     setAssessmentId(id);
-    if (!id) return;
+    if (!id) {
+      setIsLoadingExisting(false);
+      return;
+    }
 
-    const wizardDraft = readWizardDraft(id);
-    if (wizardDraft) applyWizardDraft(wizardDraft, setters);
+    // When navigating from the list we already seeded state from the preload snapshot;
+    // skip the (possibly stale) local draft so it can't clobber the shown values.
+    const preload = (location.state as Record<string, unknown> | null)?.[WIZARD_PRELOAD_STATE_KEY] as WizardPreload | undefined;
+    if (!preload) {
+      const wizardDraft = readWizardDraft(id);
+      if (wizardDraft) applyWizardDraft(wizardDraft, setters);
+    }
 
-    if (!isFirebaseConfigured()) return;
+    if (!isFirebaseConfigured()) {
+      setIsLoadingExisting(false);
+      return;
+    }
 
     void (async () => {
       try {
@@ -62,6 +76,8 @@ export function useWizardInitialLoad(
         if (remote.domainKey) setters.setDomain(remote.domainKey);
       } catch {
         // keep local draft when remote load fails
+      } finally {
+        setIsLoadingExisting(false);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

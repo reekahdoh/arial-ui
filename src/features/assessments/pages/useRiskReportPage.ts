@@ -33,7 +33,7 @@ export function useRiskReportPage() {
     document: null,
     completedAt: null,
     error: null,
-    isLoading: false,
+    isLoading: true,
   });
   const [selectedMitigationRisk, setSelectedMitigationRisk] = useState<OverallRiskAssessment | null>(null);
   const [selectedAssessmentRisk, setSelectedAssessmentRisk] = useState<OverallRiskAssessment | null>(null);
@@ -44,7 +44,8 @@ export function useRiskReportPage() {
   const storedReport = assessmentId ? readStoredRiskReport(assessmentId) : null;
   const report = reportFromState ?? storedReport;
   const storedReportDocument = report ? getReportDocument(report) : null;
-  const reportDocument = apiReport.document ?? storedReportDocument;
+  // Fall back to stored document only after the backend fetch finishes (avoid placeholder flash).
+  const reportDocument = apiReport.document ?? (apiReport.isLoading ? null : storedReportDocument);
   const completedAt = apiReport.completedAt ?? report?.completedAt ?? null;
 
   const viewModel = useMemo(

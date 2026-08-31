@@ -24,7 +24,7 @@ export function useAuthorativeDomainReferencesList(domain: DomainKey | null) {
           const record = await getDomainByRouteKey(domain);
           if (!record) {
             throw new Error(
-              `Domain "${domainLabel(domain)}" not found in Firestore. Seed Domain documents with ids "ai" and "who" (see npm run seed:firestore), or add a domain whose document id is "${domain}".`,
+              `Domain "${domainLabel(domain)}" not found in Firestore. Seed Domain documents with ids "ai" and "medical-device" (see npm run seed:firestore), or add a domain whose document id is "${domain}".`,
             );
           }
           const list = await listAuthorativeReferencesByDomain(record.id);

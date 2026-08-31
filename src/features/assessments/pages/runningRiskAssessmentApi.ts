@@ -4,8 +4,6 @@ import { IDENTIFIED_STAGE, IDENTIFYING_STAGE, normalizeChatStage } from './prepa
 export { IDENTIFIED_STAGE, IDENTIFYING_STAGE };
 
 export const AI_ID_USER_ID = 'me';
-export const AI_ID_INITIAL_MESSAGE =
-  'I am procuring an AI system for tracking vehicles in and across CCTV video.';
 
 export type AiIdJson = {
   chat_id: string;
@@ -24,12 +22,6 @@ export type AiIdResult = {
 
 export function isIdentifiedAiStage(stage: string | null | undefined): boolean {
   return normalizeChatStage(stage) === IDENTIFIED_STAGE;
-}
-
-export function statusAfterAiIdStage(chatStage: string): string {
-  if (chatStage === IDENTIFIED_STAGE) return 'AI identified.';
-  if (chatStage === IDENTIFYING_STAGE) return '';
-  return `Stage: ${chatStage}`;
 }
 
 export function buildAiIdRequestUrl(userId: string, message: string) {

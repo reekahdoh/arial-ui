@@ -1,0 +1,374 @@
+{
+  "total_questions": 228,
+  "unique_question_texts": 203,
+  "duplicate_texts": 18,
+  "extra_duplicate_entries": 25,
+  "duplicates": [
+    {
+      "question": "Are there categories of evidence that are especially important to retrieve for investment analysis, such as negative diligence findings, recent updates, contradictory sources, or niche documents that may be less common in the corpus?",
+      "question_ids": [
+        "9a02fb33-9f03-4a7f-a81e-c221464295bf",
+        "91c34e71-6de1-4b62-b940-911b1e239e04",
+        "7f65e589-ad25-4b1e-80f9-ac10e7168af9"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Are there source details whose omission or distortion during transformation would materially change an investment judgment, such as whether a metric is projected versus historical, a claim is management-stated versus independently verified, a date or period qualifier, a negative caveat, or a conditional deal term?",
+      "question_ids": [
+        "0542d3f7-4c9e-4f80-8e1b-27f613958116",
+        "191ba001-2fb7-4fc5-9b04-8b2693a66f24",
+        "daa4269f-629e-4538-a2f6-0ecfec90849d"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Could analysts or investment committee users rely on generated summaries, answers, or draft memos without reading the underlying source materials in full, especially when making screening, prioritisation, or recommendation decisions?",
+      "question_ids": [
+        "2c80dcd7-e833-4b92-856f-ae4b6cbce7fe",
+        "57b116cc-618b-4cce-82e3-9f134ae883b9",
+        "55986a05-641e-462c-9e65-2aa71c6ae737"
+      ],
+      "count": 3
+    },
+    {
+      "question": "For summaries, translations, transcriptions, OCR outputs, or structured conversions used in investment research, will analysts or downstream scoring and ranking steps rely on the transformed output without routinely checking the original source each time?",
+      "question_ids": [
+        "a8dab69f-c0d1-4f5b-be50-90931cbe955d",
+        "84ef1c0c-6a97-41bf-8fce-eff563f61200",
+        "1a955cc9-6055-4505-8ef6-9b82117e504d"
+      ],
+      "count": 3
+    },
+    {
+      "question": "When analysts use semantic search or question-answer retrieval over research materials, will they typically rely on only the top few retrieved documents or passages, or will they routinely review a broader result set before forming an investment view?",
+      "question_ids": [
+        "d8f5b57d-afdc-41c9-b697-dd64f1af5481",
+        "bcbd57dc-fa4e-43a2-b489-437e3be08037",
+        "9b3d72ff-e6d3-481d-b771-782b1dfd0632"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Will analysts or investment committee users be expected to rely on the displayed confidence or uncertainty measure itself when deciding whether to trust, prioritise, or escalate an investment output?",
+      "question_ids": [
+        "c0007717-02e3-4837-bcc5-7c2f7528e44d",
+        "664a8d62-cbb1-4ebb-9c66-03d6974ec3e3",
+        "8e0a850a-4196-4c29-861d-d39d6b65f191"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Will the confidence or uncertainty measure be shown for high-impact outputs such as deal rankings, forecasts, proceed/hold/reject recommendations, and generated investment views, or only for lower-stakes research aids?",
+      "question_ids": [
+        "6e21078f-039f-4aa0-bd86-5dd57f32d858",
+        "e526af25-1d53-473c-b673-43d381dea72f",
+        "f49c924e-2eb2-4834-ad1c-cafb65fea318"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Could missing or compressed-away details in the learned representations, such as unusual deal terms, caveats in diligence notes, negative signals, or context-specific nuances, materially change how an opportunity is ranked, compared, or assessed?",
+      "question_ids": [
+        "202c12ce-96f9-4676-82a7-c188df7a778a",
+        "c1e7d1b1-ab48-47fb-b519-e14f678d948a"
+      ],
+      "count": 2
+    },
+    {
+      "question": "If a forecast or numeric score is materially wrong, could it directly change which deals receive attention, diligence effort, or investment recommendation before a human independently recalculates or challenges the number?",
+      "question_ids": [
+        "8a62c2f3-b160-4a37-86ba-b963a297cec1",
+        "a25bfb0c-8541-44b5-998a-6e9bf5fa255a"
+      ],
+      "count": 2
+    },
+    {
+      "question": "If the extracted labels for one deal or document conflict with each other, could that inconsistent structured record still be used downstream for scoring, ranking, recommendation, or memo generation before anyone resolves the conflict?",
+      "question_ids": [
+        "fbe000ce-fac8-4d82-8822-75dc629143f1",
+        "8d90624f-f614-4f4a-b135-16f9c2f23cf1"
+      ],
+      "count": 2
+    },
+    {
+      "question": "When analysts review an AI-ordered list of investment opportunities, will only the top-ranked deals typically receive meaningful attention while lower-ranked deals may be skipped or delayed?",
+      "question_ids": [
+        "52bc6285-6bb0-415b-a48c-83df8495441b",
+        "ade882a6-7f60-409f-9796-934fb4336190"
+      ],
+      "count": 2
+    },
+    {
+      "question": "When embeddings or reduced representations are used for semantic search over research materials, will analysts also be able to inspect the original source passages or documents before relying on the retrieved results in investment analysis?",
+      "question_ids": [
+        "04627ceb-75b4-4b2c-b293-8a00d669acfd",
+        "a35a3f4a-55ee-4790-b5f0-a4f36bfc45e7"
+      ],
+      "count": 2
+    },
+    {
+      "question": "When forecasts are used in screening, prioritisation, or investment decisions, will users be required to consider multiple scenarios or assumptions before acting, or can they act on the default forecast alone?",
+      "question_ids": [
+        "89ba3257-9ca8-42a6-addc-371224c42ae4",
+        "164c6bf7-6965-4d00-acf3-a314357d24c5"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will extracted fields, entities, or relations be shown to analysts with the exact source snippet or document location they came from, so ambiguous wording can be checked before the structured value is used downstream?",
+      "question_ids": [
+        "a7717450-e68c-4535-92c3-725130f8c1a1",
+        "c418ffe9-714a-4922-b2d4-7898005785a3"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will extracted fields, entities, or relations be written directly into a CRM, deal record, or structured research database before a human confirms each extracted value?",
+      "question_ids": [
+        "ba552bd1-1149-45b4-9363-c82fdf895121",
+        "b502b663-8d05-4d37-a2f5-eb295a675ae6"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will generated research drafts, answers, or recommendations include traceable citations or linked source passages for specific factual claims, so analysts can check whether statements are supported before relying on them?",
+      "question_ids": [
+        "da19104d-347c-451a-bf87-434650911037",
+        "02614f0c-ee6d-40d3-8409-3522d02ce01c"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will the forecast outputs be presented as ranges, scenarios, or probability distributions, rather than as a single point estimate that could be read as the expected outcome?",
+      "question_ids": [
+        "bb7d43f7-6363-4a4c-b380-7a756b9e7e06",
+        "0d42d5c9-169c-4566-9a96-41c70328386c"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will the sequence-labelling output need to enforce consistency across related extracted fields or labels for the same deal or document, such as keeping funding round, date, investor, amount, stage, and company references mutually compatible rather than extracting each label independently?",
+      "question_ids": [
+        "2a9a37da-fc68-4f23-98bd-461b8623c2f8",
+        "993459b9-dde0-41b1-bb71-2b28aadab899"
+      ],
+      "count": 2
+    }
+  ],
+  "similarity_threshold": 0.6,
+  "similar_pairs_count": 19,
+  "similar_pairs": [
+    {
+      "similarity": 0.9416,
+      "question_a": "Will generated research drafts, answers, or rationales include traceable citations or linked source passages for specific factual claims, so analysts can check whether statements are supported before relying on them?",
+      "question_ids_a": [
+        "5ca43a9a-27d9-4d42-b0ea-203cf2214e57"
+      ],
+      "question_b": "Will generated research drafts, answers, or recommendations include traceable citations or linked source passages for specific factual claims, so analysts can check whether statements are supported before relying on them?",
+      "question_ids_b": [
+        "da19104d-347c-451a-bf87-434650911037",
+        "02614f0c-ee6d-40d3-8409-3522d02ce01c"
+      ]
+    },
+    {
+      "similarity": 0.9346,
+      "question_a": "When the system shows a natural-language rationale for a score, ranking, recommendation, or investment conclusion, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly the explanation text itself?",
+      "question_ids_a": [
+        "442b944f-fe53-456b-801e-641cbbd04551"
+      ],
+      "question_b": "When the system shows a natural-language investment rationale, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly the explanation text itself?",
+      "question_ids_b": [
+        "9e799f0c-d65c-4513-877d-ab987f07371b"
+      ]
+    },
+    {
+      "similarity": 0.9026,
+      "question_a": "Will analysts or investment committee users be expected to act on the system's discrete recommendation or ranking under significant time pressure or high deal volume, making them likely to rely on it without independently rebuilding the underlying judgment each time?",
+      "question_ids_a": [
+        "2cc574ad-888e-47b5-b27b-9844e29bb51e"
+      ],
+      "question_b": "Will analysts or investment committee users be expected to act on the system's deal ranking or proceed/hold/reject recommendation under significant time pressure or high deal volume, making them likely to rely on it without independently rebuilding the judgment each time?",
+      "question_ids_b": [
+        "77636fec-0ab4-4eed-94ad-d9703ef6084e"
+      ]
+    },
+    {
+      "similarity": 0.8909,
+      "question_a": "When analysts view an AI-ordered list of investment opportunities, will they be able to see why one deal is ranked above another using specific contributing factors or evidence, rather than only a final rank or composite score?",
+      "question_ids_a": [
+        "717e81fe-b84e-4478-9294-8d4a40240ce4"
+      ],
+      "question_b": "Will analysts be able to see why one deal is ranked above another using specific contributing factors or evidence, rather than only a final rank or composite score?",
+      "question_ids_b": [
+        "7755ad2a-bb16-4fc0-a4b2-52d9e0de12e3"
+      ]
+    },
+    {
+      "similarity": 0.8666,
+      "question_a": "Will analysts' clicks, opens, shortlist actions, diligence starts, or investment outcomes from earlier ranked lists be fed back into the ranking logic to influence future deal ordering?",
+      "question_ids_a": [
+        "99e495d4-903b-40c7-b078-d16ced377ce1"
+      ],
+      "question_b": "Will analysts' clicks, opens, shortlist actions, diligence starts, or eventual investment outcomes from earlier ranked opportunities be fed back into the recommendation logic to influence future deal rankings?",
+      "question_ids_b": [
+        "faea5f69-b2d6-49cf-b995-f9ec8945314b"
+      ]
+    },
+    {
+      "similarity": 0.8347,
+      "question_a": "When the available evidence for a deal is incomplete, mixed, or internally conflicting, is the reasoning component expected to present multiple plausible interpretations, or mainly one coherent investment conclusion?",
+      "question_ids_a": [
+        "836b8469-64fe-4fa8-801e-0a208eef53b2"
+      ],
+      "question_b": "If the evidence for a deal is mixed, incomplete, or internally conflicting, is the explanation component expected to present multiple plausible interpretations, or mainly one coherent investment narrative?",
+      "question_ids_b": [
+        "f97424bf-cc81-4663-985a-277b54a3aab6"
+      ]
+    },
+    {
+      "similarity": 0.8014,
+      "question_a": "Will the regression outputs that rank or prioritise deals be shown mainly as single point estimates, or as ranges or scenario-based values that make forecast uncertainty explicit?",
+      "question_ids_a": [
+        "97163157-9188-490b-abc6-c28f8e15e251"
+      ],
+      "question_b": "Will the regression outputs that rank or prioritise deals be shown mainly as single exact-looking numbers, or as ranges or scenario-based values that make uncertainty explicit?",
+      "question_ids_b": [
+        "ec6fdbc4-53a8-405a-9a9d-96cc13553b5d"
+      ]
+    },
+    {
+      "similarity": 0.7831,
+      "question_a": "When the system answers recurring diligence questions, will users usually see the exact supporting source passages or documents for each factual answer at the point of use, or mainly a direct natural-language answer and rationale?",
+      "question_ids_a": [
+        "9c35aa29-0f44-4d72-ac30-aee7bf03d585"
+      ],
+      "question_b": "When the system answers recurring diligence questions, will users mainly see a direct natural-language answer first, or will they see the supporting source passages and qualifiers alongside the answer at the point of use?",
+      "question_ids_b": [
+        "f3cefe3b-33c3-4682-aca9-66e4753c5835"
+      ]
+    },
+    {
+      "similarity": 0.7809,
+      "question_a": "Will analysts be free to override the AI's ranking or recommendation without extra approval, justification, or workflow friction, or would departing from it require additional effort?",
+      "question_ids_a": [
+        "d3dccd60-d14e-45b0-9a77-fa67ef1ad33a"
+      ],
+      "question_b": "If an analyst or committee member disagrees with the AI's reasoning-based conclusion, can they override it without extra approval or workflow friction, or would departing from it require additional effort or justification?",
+      "question_ids_b": [
+        "a2e0080e-9e3b-4125-91e6-7759fd2ff0ca"
+      ]
+    },
+    {
+      "similarity": 0.7327,
+      "question_a": "How often will the forecasting models be retrained, recalibrated, or otherwise updated to reflect changing market conditions, sectors, and deal patterns?",
+      "question_ids_a": [
+        "19139e8b-a0c7-47dc-a279-e0f406fd03d4"
+      ],
+      "question_b": "Will the deal-ranking or recommendation logic be retrained, recalibrated, or otherwise updated on a regular basis to reflect changing market conditions, sectors, and investment patterns?",
+      "question_ids_b": [
+        "9408c029-b176-4508-a3ae-f5089d11fa1b"
+      ]
+    },
+    {
+      "similarity": 0.706,
+      "question_a": "When analysts review an AI-ordered list of investment opportunities, will only the top-ranked deals typically receive meaningful attention while lower-ranked deals may be skipped or delayed?",
+      "question_ids_a": [
+        "52bc6285-6bb0-415b-a48c-83df8495441b",
+        "ade882a6-7f60-409f-9796-934fb4336190"
+      ],
+      "question_b": "When analysts use AI-ordered deal lists, do top-ranked opportunities usually receive most of the attention while lower-ranked deals are often skipped or delayed, or is there a routine process to review beyond the top results?",
+      "question_ids_b": [
+        "3c5a7b85-bc63-4355-a177-39792bd894a0"
+      ]
+    },
+    {
+      "similarity": 0.6719,
+      "question_a": "For the numeric forecasts or scores used to rank investment opportunities, is there a known business incentive or model objective that would reward optimistic estimates more than conservative ones, such as favouring upside cases, minimising missed deals, or training on historically successful investments?",
+      "question_ids_a": [
+        "ccf03d82-484a-4c30-9584-edf56d4421c6"
+      ],
+      "question_b": "For the numeric forecasts or scores used to rank investment opportunities, is there a known business incentive or model objective that would reward conservative estimates more than balanced ones, such as avoiding false positives, filtering out weaker deals early, or training mainly on historically successful investments?",
+      "question_ids_b": [
+        "bff0647e-1d41-46e3-9007-da3b2ec4007f"
+      ]
+    },
+    {
+      "similarity": 0.6628,
+      "question_a": "Will analysts or investment committee users be expected to act on verified or failed checks under time pressure or high deal volume, making them likely to rely on the binary result without independently rechecking the evidence each time?",
+      "question_ids_a": [
+        "8205b48f-7ca2-4a41-a15b-0ca5878c6231"
+      ],
+      "question_b": "Will analysts or investment committee users be expected to act on the system's discrete recommendation or ranking under significant time pressure or high deal volume, making them likely to rely on it without independently rebuilding the underlying judgment each time?",
+      "question_ids_b": [
+        "2cc574ad-888e-47b5-b27b-9844e29bb51e"
+      ]
+    },
+    {
+      "similarity": 0.6588,
+      "question_a": "Will analysts or investment committee users be expected to act on verified or failed checks under time pressure or high deal volume, making them likely to rely on the binary result without independently rechecking the evidence each time?",
+      "question_ids_a": [
+        "8205b48f-7ca2-4a41-a15b-0ca5878c6231"
+      ],
+      "question_b": "Will analysts or investment committee users be expected to act on the system's deal ranking or proceed/hold/reject recommendation under significant time pressure or high deal volume, making them likely to rely on it without independently rebuilding the judgment each time?",
+      "question_ids_b": [
+        "77636fec-0ab4-4eed-94ad-d9703ef6084e"
+      ]
+    },
+    {
+      "similarity": 0.6528,
+      "question_a": "Will analysts or investment committee users be expected to act on the system's discrete recommendation or ranking under significant time pressure or high deal volume, making them likely to rely on it without independently rebuilding the underlying judgment each time?",
+      "question_ids_a": [
+        "2cc574ad-888e-47b5-b27b-9844e29bb51e"
+      ],
+      "question_b": "Will analysts or investment committee users be expected to use the question-answering system under significant time pressure or high deal volume, making them likely to accept answers without independently checking the cited materials each time?",
+      "question_ids_b": [
+        "b4b102a9-0857-4da3-a70a-d4c6a3ad5ac6"
+      ]
+    },
+    {
+      "similarity": 0.649,
+      "question_a": "Will analysts or investment committee users be expected to act on the system's deal ranking or proceed/hold/reject recommendation under significant time pressure or high deal volume, making them likely to rely on it without independently rebuilding the judgment each time?",
+      "question_ids_a": [
+        "77636fec-0ab4-4eed-94ad-d9703ef6084e"
+      ],
+      "question_b": "Will analysts or investment committee users be expected to use the question-answering system under significant time pressure or high deal volume, making them likely to accept answers without independently checking the cited materials each time?",
+      "question_ids_b": [
+        "b4b102a9-0857-4da3-a70a-d4c6a3ad5ac6"
+      ]
+    },
+    {
+      "similarity": 0.6211,
+      "question_a": "When the system draws an investment conclusion such as thesis fit, proceed versus hold, or an investment view from multiple evidence sources, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly a plain-language rationale?",
+      "question_ids_a": [
+        "0cf11ef5-4c70-4737-b616-ea55aa17f21d"
+      ],
+      "question_b": "Will users see the exact supporting evidence and any conflicting evidence alongside each inferred investment conclusion at the point of use, or mainly a plain-language rationale without direct source support?",
+      "question_ids_b": [
+        "60239fee-6182-4b54-b5ce-bd31f99bb0ca"
+      ]
+    },
+    {
+      "similarity": 0.6131,
+      "question_a": "When the system draws an investment conclusion such as thesis fit, proceed versus hold, or an investment view from multiple evidence sources, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly a plain-language rationale?",
+      "question_ids_a": [
+        "0cf11ef5-4c70-4737-b616-ea55aa17f21d"
+      ],
+      "question_b": "When the system shows a natural-language investment rationale, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly the explanation text itself?",
+      "question_ids_b": [
+        "9e799f0c-d65c-4513-877d-ab987f07371b"
+      ]
+    },
+    {
+      "similarity": 0.6094,
+      "question_a": "When the system draws an investment conclusion such as thesis fit, proceed versus hold, or an investment view from multiple evidence sources, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly a plain-language rationale?",
+      "question_ids_a": [
+        "0cf11ef5-4c70-4737-b616-ea55aa17f21d"
+      ],
+      "question_b": "When the system shows a natural-language rationale for a score, ranking, recommendation, or investment conclusion, will users also see the exact supporting evidence and any conflicting evidence at the point of use, or mainly the explanation text itself?",
+      "question_ids_b": [
+        "442b944f-fe53-456b-801e-641cbbd04551"
+      ]
+    }
+  ]
+}

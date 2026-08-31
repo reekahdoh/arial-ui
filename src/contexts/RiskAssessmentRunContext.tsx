@@ -7,7 +7,7 @@ export interface RiskAssessmentRunDraft {
   owner: string;
   riskOwner: string;
   companyName: string;
-  domain: 'ai' | 'who' | '';
+  domain: 'ai' | 'medical-device' | '';
   customerContext?: ProjectRequirementsFields;
   customerReferenceText: string;
 }

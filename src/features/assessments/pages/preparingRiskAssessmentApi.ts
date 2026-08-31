@@ -4,6 +4,7 @@ import {
   buildAssessmentAnswerRequestUrl,
   postAssessmentAnswerJson,
   resolveChatId,
+  resolveOptions,
   resolveQuestionId,
   type AssessmentAnswerJson,
   type AssessmentAnswerRequestOptions,
@@ -19,7 +20,7 @@ export type AssessmentAiJson = AssessmentAnswerJson & {
   chat_id: string;
   message: string;
   history: { role: string; content: string }[];
-  chat_stage: string;
+  assessment_stage: string;
   turn_type: string;
 };
 
@@ -67,10 +68,11 @@ export async function postAssessmentAiJson(
   return postAssessmentAnswerJson(url, signal, options);
 }
 
-export function statusAfterAiResponse(chatStage: string): string {
-  if (isIdentifiedStage(chatStage)) return '';
-  if (normalizeChatStage(chatStage) === IDENTIFYING_STAGE) return '';
-  return `Stage: ${chatStage}`;
+export function statusAfterAiResponse(_chatStage: string): string {
+  // The stage is already shown by the dedicated "Stage:" line in
+  // AssessmentQuestionAnswerContent, so the status stays empty to avoid
+  // rendering the stage twice.
+  return '';
 }
 
 export function appendAiLogEntry(
@@ -90,12 +92,12 @@ export function logAiResponse(
   console.log('[assessment-answer] response', {
     requestUrl,
     httpStatus,
-    chat_stage: data.chat_stage,
+    assessment_stage: data.assessment_stage,
     body: data,
   });
   setAiIdResponseLog((prev) =>
     appendAiLogEntry(prev, {
-      chatStage: data.chat_stage,
+      chatStage: data.assessment_stage,
       httpStatus,
       requestUrl,
       requestBodyJson,
@@ -109,25 +111,28 @@ export function applyAiResponse(
   setters: {
     setAiStage: (stage: string) => void;
     setQuestion: (question: string | null) => void;
+    setOptions: (options: string[]) => void;
     setProgressPercent: (percent: number | null) => void;
     setStatus: (status: string) => void;
     setIsAwaitingQuestion: (awaiting: boolean) => void;
   },
   questionIdRef: { current: string | null },
 ) {
-  setters.setAiStage(data.chat_stage);
+  setters.setAiStage(data.assessment_stage);
   setters.setProgressPercent(progressPercentFromAiResponse(data));
   const questionId = resolveQuestionId(data);
   questionIdRef.current = questionId;
   if (questionId === null) {
     setters.setIsAwaitingQuestion(true);
     setters.setQuestion(null);
+    setters.setOptions([]);
     setters.setStatus(ASSESSMENT_BEING_PREPARED_STATUS);
     return;
   }
   setters.setIsAwaitingQuestion(false);
   setters.setQuestion(data.message || null);
-  setters.setStatus(statusAfterAiResponse(data.chat_stage));
+  setters.setOptions(resolveOptions(data));
+  setters.setStatus(statusAfterAiResponse(data.assessment_stage));
 }
 
 export function assertAiResult(result: AssessmentAiResult): AssessmentAiJson {

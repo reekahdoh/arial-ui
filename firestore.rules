@@ -50,13 +50,13 @@ service cloud.firestore {
       allow delete: if isRiskAssessmentOwner();
     }
 
-    // Domain reference data (seeded with AI + WHO).
+    // Domain reference data (seeded with AI + Medical Device).
     match /Domain/{domainId} {
       allow get, list: if isSignedIn();
       allow create, update: if isSignedIn()
-        && domainId in ['ai', 'who']
+        && domainId in ['ai', 'medical-device']
         && request.resource.data.keys().hasAll(['name'])
-        && request.resource.data.name in ['AI', 'WHO'];
+        && request.resource.data.name in ['AI', 'Medical Device'];
       allow delete: if false;
     }
 

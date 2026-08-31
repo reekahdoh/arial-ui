@@ -6,7 +6,7 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { GoogleAuth } = require('google-auth-library');
 
-const target = (process.env.BACKEND_PROXY_TARGET || 'https://aira-api-164267786730.europe-west2.run.app').replace(
+const target = (process.env.BACKEND_PROXY_TARGET || 'https://aira-api-164267786730.europe-west1.run.app').replace(
   /\/+$/,
   '',
 );

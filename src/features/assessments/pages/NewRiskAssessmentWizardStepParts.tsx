@@ -20,6 +20,7 @@ export function WizardTextFieldStep({
   onChange,
   readOnly = false,
   nextButton,
+  testId,
 }: {
   title: string;
   description: string;
@@ -29,10 +30,11 @@ export function WizardTextFieldStep({
   onChange?: (value: string) => void;
   readOnly?: boolean;
   nextButton: ReactNode;
+  testId?: string;
 }) {
   return (
     <>
-      <RiskAssessmentOvalSection title={title} description={description}>
+      <RiskAssessmentOvalSection title={title} description={description} data-testid={testId}>
         <TextField
           label={label}
           value={value}

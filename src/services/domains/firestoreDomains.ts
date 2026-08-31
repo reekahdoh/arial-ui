@@ -7,8 +7,8 @@ export interface DomainDoc {
   name: string;
 }
 
-/** Route keys match seeded Domain document IDs (`Domain/ai`, `Domain/who`). */
-export type DomainRouteKey = 'ai' | 'who';
+/** Route keys match seeded Domain document IDs (`Domain/ai`, `Domain/medical-device`). */
+export type DomainRouteKey = 'ai' | 'medical-device';
 
 export async function getDomainByDocId(id: string): Promise<DomainDoc | null> {
   if (!isFirebaseConfigured()) {
@@ -39,7 +39,7 @@ export async function getDomainByName(name: string): Promise<DomainDoc | null> {
 export async function getDomainByRouteKey(routeKey: DomainRouteKey): Promise<DomainDoc | null> {
   const byId = await getDomainByDocId(routeKey);
   if (byId) return byId;
-  const label = routeKey === 'ai' ? 'AI' : 'WHO';
+  const label = routeKey === 'ai' ? 'AI' : 'Medical Device';
   return getDomainByName(label);
 }
 

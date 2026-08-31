@@ -1,0 +1,159 @@
+{
+  "total_questions": 228,
+  "unique_question_texts": 203,
+  "duplicate_texts": 18,
+  "extra_duplicate_entries": 25,
+  "duplicates": [
+    {
+      "question": "Are there categories of evidence that are especially important to retrieve for investment analysis, such as negative diligence findings, recent updates, contradictory sources, or niche documents that may be less common in the corpus?",
+      "question_ids": [
+        "9a02fb33-9f03-4a7f-a81e-c221464295bf",
+        "91c34e71-6de1-4b62-b940-911b1e239e04",
+        "7f65e589-ad25-4b1e-80f9-ac10e7168af9"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Are there source details whose omission or distortion during transformation would materially change an investment judgment, such as whether a metric is projected versus historical, a claim is management-stated versus independently verified, a date or period qualifier, a negative caveat, or a conditional deal term?",
+      "question_ids": [
+        "0542d3f7-4c9e-4f80-8e1b-27f613958116",
+        "191ba001-2fb7-4fc5-9b04-8b2693a66f24",
+        "daa4269f-629e-4538-a2f6-0ecfec90849d"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Could analysts or investment committee users rely on generated summaries, answers, or draft memos without reading the underlying source materials in full, especially when making screening, prioritisation, or recommendation decisions?",
+      "question_ids": [
+        "2c80dcd7-e833-4b92-856f-ae4b6cbce7fe",
+        "57b116cc-618b-4cce-82e3-9f134ae883b9",
+        "55986a05-641e-462c-9e65-2aa71c6ae737"
+      ],
+      "count": 3
+    },
+    {
+      "question": "For summaries, translations, transcriptions, OCR outputs, or structured conversions used in investment research, will analysts or downstream scoring and ranking steps rely on the transformed output without routinely checking the original source each time?",
+      "question_ids": [
+        "a8dab69f-c0d1-4f5b-be50-90931cbe955d",
+        "84ef1c0c-6a97-41bf-8fce-eff563f61200",
+        "1a955cc9-6055-4505-8ef6-9b82117e504d"
+      ],
+      "count": 3
+    },
+    {
+      "question": "When analysts use semantic search or question-answer retrieval over research materials, will they typically rely on only the top few retrieved documents or passages, or will they routinely review a broader result set before forming an investment view?",
+      "question_ids": [
+        "d8f5b57d-afdc-41c9-b697-dd64f1af5481",
+        "bcbd57dc-fa4e-43a2-b489-437e3be08037",
+        "9b3d72ff-e6d3-481d-b771-782b1dfd0632"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Will analysts or investment committee users be expected to rely on the displayed confidence or uncertainty measure itself when deciding whether to trust, prioritise, or escalate an investment output?",
+      "question_ids": [
+        "c0007717-02e3-4837-bcc5-7c2f7528e44d",
+        "664a8d62-cbb1-4ebb-9c66-03d6974ec3e3",
+        "8e0a850a-4196-4c29-861d-d39d6b65f191"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Will the confidence or uncertainty measure be shown for high-impact outputs such as deal rankings, forecasts, proceed/hold/reject recommendations, and generated investment views, or only for lower-stakes research aids?",
+      "question_ids": [
+        "6e21078f-039f-4aa0-bd86-5dd57f32d858",
+        "e526af25-1d53-473c-b673-43d381dea72f",
+        "f49c924e-2eb2-4834-ad1c-cafb65fea318"
+      ],
+      "count": 3
+    },
+    {
+      "question": "Could missing or compressed-away details in the learned representations, such as unusual deal terms, caveats in diligence notes, negative signals, or context-specific nuances, materially change how an opportunity is ranked, compared, or assessed?",
+      "question_ids": [
+        "202c12ce-96f9-4676-82a7-c188df7a778a",
+        "c1e7d1b1-ab48-47fb-b519-e14f678d948a"
+      ],
+      "count": 2
+    },
+    {
+      "question": "If a forecast or numeric score is materially wrong, could it directly change which deals receive attention, diligence effort, or investment recommendation before a human independently recalculates or challenges the number?",
+      "question_ids": [
+        "8a62c2f3-b160-4a37-86ba-b963a297cec1",
+        "a25bfb0c-8541-44b5-998a-6e9bf5fa255a"
+      ],
+      "count": 2
+    },
+    {
+      "question": "If the extracted labels for one deal or document conflict with each other, could that inconsistent structured record still be used downstream for scoring, ranking, recommendation, or memo generation before anyone resolves the conflict?",
+      "question_ids": [
+        "fbe000ce-fac8-4d82-8822-75dc629143f1",
+        "8d90624f-f614-4f4a-b135-16f9c2f23cf1"
+      ],
+      "count": 2
+    },
+    {
+      "question": "When analysts review an AI-ordered list of investment opportunities, will only the top-ranked deals typically receive meaningful attention while lower-ranked deals may be skipped or delayed?",
+      "question_ids": [
+        "52bc6285-6bb0-415b-a48c-83df8495441b",
+        "ade882a6-7f60-409f-9796-934fb4336190"
+      ],
+      "count": 2
+    },
+    {
+      "question": "When embeddings or reduced representations are used for semantic search over research materials, will analysts also be able to inspect the original source passages or documents before relying on the retrieved results in investment analysis?",
+      "question_ids": [
+        "04627ceb-75b4-4b2c-b293-8a00d669acfd",
+        "a35a3f4a-55ee-4790-b5f0-a4f36bfc45e7"
+      ],
+      "count": 2
+    },
+    {
+      "question": "When forecasts are used in screening, prioritisation, or investment decisions, will users be required to consider multiple scenarios or assumptions before acting, or can they act on the default forecast alone?",
+      "question_ids": [
+        "89ba3257-9ca8-42a6-addc-371224c42ae4",
+        "164c6bf7-6965-4d00-acf3-a314357d24c5"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will extracted fields, entities, or relations be shown to analysts with the exact source snippet or document location they came from, so ambiguous wording can be checked before the structured value is used downstream?",
+      "question_ids": [
+        "a7717450-e68c-4535-92c3-725130f8c1a1",
+        "c418ffe9-714a-4922-b2d4-7898005785a3"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will extracted fields, entities, or relations be written directly into a CRM, deal record, or structured research database before a human confirms each extracted value?",
+      "question_ids": [
+        "ba552bd1-1149-45b4-9363-c82fdf895121",
+        "b502b663-8d05-4d37-a2f5-eb295a675ae6"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will generated research drafts, answers, or recommendations include traceable citations or linked source passages for specific factual claims, so analysts can check whether statements are supported before relying on them?",
+      "question_ids": [
+        "da19104d-347c-451a-bf87-434650911037",
+        "02614f0c-ee6d-40d3-8409-3522d02ce01c"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will the forecast outputs be presented as ranges, scenarios, or probability distributions, rather than as a single point estimate that could be read as the expected outcome?",
+      "question_ids": [
+        "bb7d43f7-6363-4a4c-b380-7a756b9e7e06",
+        "0d42d5c9-169c-4566-9a96-41c70328386c"
+      ],
+      "count": 2
+    },
+    {
+      "question": "Will the sequence-labelling output need to enforce consistency across related extracted fields or labels for the same deal or document, such as keeping funding round, date, investor, amount, stage, and company references mutually compatible rather than extracting each label independently?",
+      "question_ids": [
+        "2a9a37da-fc68-4f23-98bd-461b8623c2f8",
+        "993459b9-dde0-41b1-bb71-2b28aadab899"
+      ],
+      "count": 2
+    }
+  ]
+}

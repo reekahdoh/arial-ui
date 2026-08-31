@@ -20,7 +20,7 @@ export function RequireAuth() {
         // Seeding hits Firestore rules; if rules are not deployed (or deny this client), do not break the app shell.
         console.warn(
           '[AIRA] Skipping Domain seed: Firestore rejected the request. Deploy `firestore.rules` to this project, ' +
-            'or run against the emulator with rules loaded. Until then, create `Domain/ai` and `Domain/who` manually or run `npm run seed:firestore`.',
+            'or run against the emulator with rules loaded. Until then, create `Domain/ai` and `Domain/medical-device` manually or run `npm run seed:firestore`.',
           err,
         );
       }

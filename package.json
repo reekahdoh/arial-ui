@@ -26,9 +26,14 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "build:staging": "env-cmd -f .env.staging react-scripts build",
+    "deploy:staging": "npm run build:staging && firebase deploy --project staging --only hosting,functions,firestore",
     "eject": "react-scripts eject",
     "emulators:stop": "lsof -ti :9399,:9099,:4000,:4001,:4400,:4500,:8080,:9150,:9151 2>/dev/null | xargs kill -9 2>/dev/null; pkill -f 'firebase emulators:start' 2>/dev/null; pkill -f 'cloud-firestore-emulator' 2>/dev/null || true",
     "emulators": "firebase emulators:start --only auth,firestore",
+    "setup:staging": "node scripts/setup-firebase-staging.js",
     "seed:firestore": "node scripts/seed-firestore.js",
     "seed:firestore:exec": "firebase emulators:exec --config firebase.seed.json --only firestore --project arial-ui \"node scripts/seed-firestore.js\""
   },
@@ -64,11 +69,18 @@
       "last 1 safari version"
     ]
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/e2e/"
+    ]
+  },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "env-cmd": "^10.1.0",
     "firebase-admin": "^13.8.0",
     "firebase-tools": "^13.35.0",
     "google-auth-library": "^9.15.1",
