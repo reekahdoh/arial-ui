@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /**
- * Seed Firestore with Domain/ai and Domain/who.
+ * Seed Firestore with Domain/ai and Domain/medical-device.
  *
  * Emulator (default when not targeting production):
  *   1. Start emulators: npm run emulators
@@ -184,7 +184,7 @@ async function main() {
 
   const targets = [
     { id: 'ai', name: 'AI' },
-    { id: 'who', name: 'WHO' },
+    { id: 'medical-device', name: 'Medical Device' },
   ];
 
   console.log(
@@ -205,6 +205,13 @@ async function main() {
     );
 
     console.log(`  wrote Domain/${d.id} → name "${d.name}"`);
+  }
+
+  const staleWho = db.collection('Domain').doc('who');
+  const staleSnap = await staleWho.get();
+  if (staleSnap.exists) {
+    await staleWho.delete();
+    console.log('  deleted Domain/who (replaced by Domain/medical-device)');
   }
 
   console.log('Done.');

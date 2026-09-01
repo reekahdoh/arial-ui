@@ -9,9 +9,9 @@ import { useProjectRequirementsFileView } from './useProjectRequirementsFileView
 
 export function useNewRiskAssessmentWizard() {
   const state = useNewRiskAssessmentWizardState();
-  const { assessmentId, step, setStep, name, owner, riskOwner, companyName, domain, projectRequirements, isSaving, persistTick, setAssessmentId, setName, setOwner, setRiskOwner, setCompanyName, setSaveError, setIsSaving, setIsRunning, setPersistTick, draftSetters } = state;
+  const { assessmentId, step, setStep, name, owner, riskOwner, companyName, domain, projectRequirements, isSaving, persistTick, setAssessmentId, setName, setOwner, setRiskOwner, setCompanyName, setSaveError, setIsSaving, setIsRunning, setPersistTick, setIsLoadingExisting, startedFromExisting, draftSetters } = state;
 
-  useWizardInitialLoad(setAssessmentId, draftSetters);
+  useWizardInitialLoad(setAssessmentId, setIsLoadingExisting, draftSetters);
   useWizardOwnerFromAuth(setOwner);
   useRunDraftSync(assessmentId, { name, owner, riskOwner, companyName, domain, projectRequirements }, persistTick);
 
@@ -50,7 +50,7 @@ export function useNewRiskAssessmentWizard() {
     setPersistTick,
   });
 
-  useNewRiskAssessmentWizardReviewAutoSave({ step, name, owner, riskOwner, companyName, domain, isSaving, save: actions.save });
+  useNewRiskAssessmentWizardReviewAutoSave({ step, name, owner, riskOwner, companyName, domain, isSaving, startedFromExisting, save: actions.save });
 
   const projectRequirementsSummaryRows = projectRequirementsRows(projectRequirements);
   const hasProjectRequirements = projectRequirementsSummaryRows.length > 0;

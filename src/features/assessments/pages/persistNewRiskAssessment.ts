@@ -1,7 +1,8 @@
 import type { ProjectRequirementsFields } from '../../../domain/projectRequirements';
-import { isFirebaseConfigured } from '../../../services/firebase';
+import { isFirebaseConfigured, isUsingFirebaseEmulators } from '../../../services/firebase';
 import { createBackendAssessment } from '../../../services/assessments/backendAssessments';
 import { getRiskAssessment, upsertRiskAssessment } from '../../../services/assessments/firestoreRiskAssessments';
+import { withTimeout } from '../../../utils/withTimeout';
 import { extractBackendAssessmentId } from './newRiskAssessmentWizardHelpers';
 import { clearWizardDraft } from './newRiskAssessmentWizardStorage';
 import type { DomainKey } from './newRiskAssessmentWizardTypes';
@@ -18,34 +19,17 @@ export type PersistRiskAssessmentInput = {
 
 const DOMAIN_BY_KEY: Record<DomainKey, { domainId: DomainKey; domainName: string }> = {
   ai: { domainId: 'ai', domainName: 'AI' },
-  who: { domainId: 'who', domainName: 'WHO' },
+  'medical-device': { domainId: 'medical-device', domainName: 'Medical Device' },
 };
 
-const FIRESTORE_LOOKUP_TIMEOUT_MS = 5000;
-
-function promiseWithTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s. Is the Firestore emulator running?`));
-    }, timeoutMs);
-    void promise.then(
-      (value) => {
-        window.clearTimeout(timer);
-        resolve(value);
-      },
-      (err: unknown) => {
-        window.clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
-}
+const FIRESTORE_TIMEOUT_MS = isUsingFirebaseEmulators() ? 5_000 : 15_000;
+const BACKEND_CREATE_TIMEOUT_MS = isUsingFirebaseEmulators() ? 10_000 : 45_000;
 
 async function resolveBackendAssessmentId(localId: string): Promise<string> {
   const trimmed = localId.trim();
   if (!trimmed || !isFirebaseConfigured()) return trimmed;
   try {
-    const existing = await promiseWithTimeout(getRiskAssessment(trimmed), FIRESTORE_LOOKUP_TIMEOUT_MS, 'Loading assessment');
+    const existing = await withTimeout(getRiskAssessment(trimmed), FIRESTORE_TIMEOUT_MS, 'Loading assessment');
     return existing?.backendAssessmentId?.trim() || existing?.id || trimmed;
   } catch {
     return trimmed;
@@ -53,11 +37,15 @@ async function resolveBackendAssessmentId(localId: string): Promise<string> {
 }
 
 async function createBackendAssessmentId(owner: string, name: string, companyName: string): Promise<string> {
-  const result = await createBackendAssessment({
-    userId: owner,
-    name,
-    description: companyName ? `Risk assessment for ${companyName}` : 'Risk assessment',
-  });
+  const result = await withTimeout(
+    createBackendAssessment({
+      userId: owner,
+      name,
+      description: companyName ? `Risk assessment for ${companyName}` : 'Risk assessment',
+    }),
+    BACKEND_CREATE_TIMEOUT_MS,
+    'Creating assessment',
+  );
   if (!result.ok) {
     throw new Error(`POST /assessments returned ${result.status}: ${result.raw || '(empty response)'}`);
   }
@@ -91,7 +79,7 @@ export async function persistNewRiskAssessment(input: PersistRiskAssessmentInput
   }
 
   const domainMeta = DOMAIN_BY_KEY[input.domain];
-  await promiseWithTimeout(
+  await withTimeout(
     upsertRiskAssessment(backendAssessmentId, {
       backendAssessmentId,
       name: baseDraft.name,
@@ -103,7 +91,7 @@ export async function persistNewRiskAssessment(input: PersistRiskAssessmentInput
       domainKey: input.domain,
       customerContext: baseDraft.customerContext,
     }),
-    FIRESTORE_LOOKUP_TIMEOUT_MS,
+    FIRESTORE_TIMEOUT_MS,
     'Saving to Firestore',
   );
 

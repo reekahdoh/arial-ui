@@ -40,7 +40,7 @@ export function buildNewRiskAssessmentWizardReturn({
   projectRequirementsSummaryRows,
   projectRequirementsFileView,
 }: WizardReturnParams) {
-  const { assessmentId, name, setName, owner, setOwner, riskOwner, setRiskOwner, companyName, setCompanyName, domain, setDomain, saveError, isSaving, isRunning, projectRequirements } = state;
+  const { assessmentId, name, setName, owner, setOwner, riskOwner, setRiskOwner, companyName, setCompanyName, domain, setDomain, saveError, isSaving, isRunning, isLoadingExisting, projectRequirements } = state;
 
   return {
     step,
@@ -49,6 +49,7 @@ export function buildNewRiskAssessmentWizardReturn({
     saveError,
     isSaving,
     isRunning,
+    isLoadingExisting,
     domain,
     hasProjectRequirements,
     allFieldsComplete,

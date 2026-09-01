@@ -12,6 +12,11 @@ import {
   type AssessmentStatusState,
 } from './assessmentsListHelpers';
 
+// Session-lived caches so revisiting the list renders the last-known data instantly
+// (no loading flicker) while a background refresh reconciles.
+let cachedRows: RiskAssessmentRead[] | null = null;
+let cachedStatuses: Record<string, AssessmentStatusState> = {};
+
 function useAssessmentBackendStatuses(
   rows: RiskAssessmentRead[],
   setStatusByRowId: Dispatch<SetStateAction<Record<string, AssessmentStatusState>>>,
@@ -22,10 +27,16 @@ function useAssessmentBackendStatuses(
       .map((row) => ({ rowId: row.id, assessmentId: getAssessmentId(row) }))
       .filter((row) => row.assessmentId);
 
-    setStatusByRowId(
+    setStatusByRowId((prev) =>
       Object.fromEntries(
         rows.map((row) => {
           const assessmentId = getAssessmentId(row);
+          // Keep a previously resolved status visible while we silently refetch, so the
+          // score/status columns don't flash back to "Loading…" on every revisit.
+          const existing = prev[row.id];
+          if (existing && !existing.isLoading && existing.assessmentId === (assessmentId || null)) {
+            return [row.id, existing];
+          }
           return [
             row.id,
             { status: null, riskImpact: null, riskLikelihood: null, assessmentId: assessmentId || null, isLoading: Boolean(assessmentId) },
@@ -61,21 +72,24 @@ function useAssessmentBackendStatuses(
 }
 
 export function useAssessmentsList() {
-  const [rows, setRows] = useState<RiskAssessmentRead[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [rows, setRows] = useState<RiskAssessmentRead[]>(() => cachedRows ?? []);
+  // Only show the full loading state on the very first load; revisits render cached rows.
+  const [loading, setLoading] = useState(() => cachedRows === null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [deletingRowId, setDeletingRowId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [statusByRowId, setStatusByRowId] = useState<Record<string, AssessmentStatusState>>({});
+  const [statusByRowId, setStatusByRowId] = useState<Record<string, AssessmentStatusState>>(() => cachedStatuses);
 
   const refreshRows = useCallback(async () => {
-    setLoading(true);
+    if (cachedRows === null) setLoading(true);
     setLoadError(null);
     try {
-      setRows(sortAssessments(await listRiskAssessments()));
+      const next = sortAssessments(await listRiskAssessments());
+      cachedRows = next;
+      setRows(next);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Failed to load risk assessments.');
-      setRows([]);
+      if (cachedRows === null) setRows([]);
     } finally {
       setLoading(false);
     }
@@ -84,6 +98,10 @@ export function useAssessmentsList() {
   useEffect(() => {
     void refreshRows();
   }, [refreshRows]);
+
+  useEffect(() => {
+    cachedStatuses = statusByRowId;
+  }, [statusByRowId]);
 
   const handleDelete = useCallback(
     async (row: RiskAssessmentRead) => {

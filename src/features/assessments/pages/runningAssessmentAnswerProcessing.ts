@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import { resolveQuestionId } from './assessmentAnswerApi';
+import { resolveOptions, resolveQuestionId } from './assessmentAnswerApi';
 import { ASSESSMENT_BEING_PREPARED_STATUS, ASSESSMENT_REPORT_COMPLETE_STATUS } from './assessmentPageShared';
 import {
   getRiskPrompt,
@@ -19,6 +19,7 @@ export type RunningFlowSetters = {
   setExchangeLog: (update: (prev: AssessmentRiskExchangeLogEntry[]) => AssessmentRiskExchangeLogEntry[]) => void;
   setIsAwaitingQuestion: (awaiting: boolean) => void;
   setIsComplete: (complete: boolean) => void;
+  setOptions: (options: string[]) => void;
   setProgressPercent: (percent: number | null) => void;
   setQuestion: (question: string | null) => void;
   setRiskReport: (report: RiskReportPayload | null) => void;
@@ -35,7 +36,7 @@ export type RunningAssessmentAnswerResult = {
 export function completeRunningAssessment(
   assessmentId: string,
   result: AssessmentRiskResult,
-  setters: Pick<RunningFlowSetters, 'setIsAwaitingQuestion' | 'setIsComplete' | 'setProgressPercent' | 'setQuestion' | 'setRiskReport' | 'setStatus'>,
+  setters: Pick<RunningFlowSetters, 'setAiStage' | 'setIsAwaitingQuestion' | 'setIsComplete' | 'setOptions' | 'setProgressPercent' | 'setQuestion' | 'setRiskReport' | 'setStatus'>,
 ) {
   const report: RiskReportPayload = {
     assessmentId,
@@ -46,6 +47,8 @@ export function completeRunningAssessment(
   sessionStorage.setItem(getRiskReportStorageKey(assessmentId), JSON.stringify(report));
   setters.setRiskReport(report);
   setters.setQuestion(null);
+  setters.setOptions([]);
+  setters.setAiStage(null);
   setters.setProgressPercent(progressPercentFromResponse(result.data) ?? 100);
   setters.setStatus(ASSESSMENT_REPORT_COMPLETE_STATUS);
   setters.setIsAwaitingQuestion(false);
@@ -61,7 +64,7 @@ function handleReadyResponse(
 ): RunningAssessmentAnswerResult {
   if (!hasStartedRiskPhaseRef.current) {
     applyAiResponse(data, setters, questionIdRef);
-    if (isIdentifiedStage(data.chat_stage)) {
+    if (isIdentifiedStage(data.assessment_stage)) {
       return { needsRiskKickoff: true, completed: false };
     }
     return { needsRiskKickoff: false, completed: false };
@@ -70,6 +73,8 @@ function handleReadyResponse(
   setters.setIsAwaitingQuestion(false);
   setters.setProgressPercent(progressPercentFromResponse(result.data));
   setters.setQuestion(getRiskPrompt(result.data, result.raw));
+  setters.setOptions(resolveOptions(result.data));
+  setters.setAiStage(result.data?.assessment_stage ?? null);
   setters.setStatus('');
   return { needsRiskKickoff: false, completed: false };
 }
@@ -95,6 +100,7 @@ export function processAssessmentAnswerResult(
     } else {
       setters.setIsAwaitingQuestion(true);
       setters.setQuestion(null);
+      setters.setOptions([]);
       setters.setProgressPercent(progressPercentFromResponse(result.data));
       setters.setStatus(ASSESSMENT_BEING_PREPARED_STATUS);
     }

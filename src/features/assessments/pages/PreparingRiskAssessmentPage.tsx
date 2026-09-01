@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Box } from '@mui/material';
 import { AppCard } from '../../../components/ui/AppCard';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -21,6 +22,11 @@ export function PreparingRiskAssessmentPage() {
   const state = useRunningRiskAssessment(assessmentId);
   const showDiagnostics = Boolean(assessmentId.trim()) || state.exchangeLog.length > 0;
 
+  useEffect(() => {
+    if (!state.question) return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [state.question]);
+
   return (
     <>
       <PageHeader
@@ -31,10 +37,12 @@ export function PreparingRiskAssessmentPage() {
       />
       <AppCard>
         <AssessmentQuestionAnswerContent
+          aiStage={state.aiStage}
           answer={state.answer}
           completionAction={state.completionAction}
           error={state.error}
           isSubmittingAnswer={state.isSubmittingAnswer}
+          options={state.options}
           progressAriaLabel="Risk assessment progress"
           progressPercent={state.progressPercent}
           question={state.question}

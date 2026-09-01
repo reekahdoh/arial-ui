@@ -39,7 +39,7 @@ export function AiraHomePage() {
             minWidth: 0,
           }}
         >
-          Making sense of AI Risk
+          Risk-Intelligence 
         </Typography>
 
         <Box

@@ -4,21 +4,31 @@ import type { ReactNode } from 'react';
 export interface AppTableProps {
   children: ReactNode;
   'aria-label'?: string;
+  'data-testid'?: string;
   tableProps?: TableProps;
+  /** Render square corners instead of the default rounded ones. */
+  square?: boolean;
 }
 
 /**
  * Shared table chrome so feature pages do not re-specify borders, radius, or density.
  */
-export function AppTable({ children, 'aria-label': ariaLabel, tableProps }: AppTableProps) {
+export function AppTable({
+  children,
+  'aria-label': ariaLabel,
+  'data-testid': testId,
+  tableProps,
+  square = false,
+}: AppTableProps) {
   return (
     <TableContainer
       component={Paper}
       variant="outlined"
       elevation={0}
+      data-testid={testId}
       sx={(theme) => ({
         /** Match `AppCard` / `RiskAssessmentOvalSection` — list page nested table used to use `md` and looked rounder than the form page. */
-        borderRadius: theme.shapeBorderRadius.sm,
+        borderRadius: square ? 0 : theme.shapeBorderRadius.sm,
         borderColor: theme.palette.border.subtle,
         boxShadow: theme.shadowsElevation.none,
         maxWidth: '100%',

@@ -41,7 +41,7 @@ export function extractBackendAssessmentId(value: unknown): string | null {
 export function domainKeyFromName(name: string): DomainKey | null {
   const normalized = name.trim().toLowerCase();
   if (normalized === 'ai') return 'ai';
-  if (normalized === 'who') return 'who';
+  if (normalized === 'medical device' || normalized === 'medical-device') return 'medical-device';
   return null;
 }
 

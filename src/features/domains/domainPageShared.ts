@@ -9,7 +9,7 @@ export type DomainReferenceRow = {
 };
 
 export function domainLabel(domain: DomainKey): string {
-  return domain === 'ai' ? 'AI' : 'WHO';
+  return domain === 'ai' ? 'AI' : 'Medical Device';
 }
 
 export function referenceKindLabel(kind: ReferenceKind): string {

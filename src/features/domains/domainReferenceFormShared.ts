@@ -1,6 +1,6 @@
 import type { ReferenceKind } from './domainReferencesStorage';
 
-export type DomainKey = 'ai' | 'who';
+export type DomainKey = 'ai' | 'medical-device';
 
 export const referenceTypePillSx = {
   flex: 1,
@@ -13,7 +13,7 @@ export const referenceTypePillSx = {
 } as const;
 
 export function isDomainKey(value: unknown): value is DomainKey {
-  return value === 'ai' || value === 'who';
+  return value === 'ai' || value === 'medical-device';
 }
 
 export function isValidHttpUrl(value: string): boolean {

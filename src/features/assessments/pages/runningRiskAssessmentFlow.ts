@@ -25,10 +25,10 @@ import {
 export type { RunningAssessmentAnswerResult, RunningFlowSetters };
 
 export const PREPARING_ANSWER_STATUS =
-  "Thanks. Please be patient - there's a lot to do here.\n\nWe're reviewing your response, and your requirements within the specified domain, to identify where AI can be used to meet your needs.";
+  "Thanks. Please be patient - there's a lot to do here.\n\nWe're reviewing your response, and your requirements within the specified domain, to identify what approches can be used to meet your needs.";
 
 export const RISK_ANSWER_STATUS =
-  "Please be patient while we process your response.\n\nWe're looking to fully underdstand your requirements and the risks involved in using AI to meet those requirements.\n\nThis may take a few minutes.";
+  "Please be patient while we process your response.\n\nWe're looking to fully underdstand your requirements and the risks involved in the solutions available to meet those requirements.\n\nThis may take a few minutes.";
 
 function responseLog(result: AssessmentRiskResult) {
   return {

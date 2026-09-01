@@ -9,16 +9,18 @@ if (!admin.apps.length) {
 }
 
 /** Private Cloud Run service URL (no path). */
-const BACKEND_BASE = (process.env.BACKEND_PROXY_TARGET || 'https://aira-api-164267786730.europe-west2.run.app').replace(
+const BACKEND_BASE = (process.env.BACKEND_PROXY_TARGET || 'https://aira-api-164267786730.europe-west1.run.app').replace(
   /\/+$/,
   '',
 );
 
 /**
  * OIDC token audience for upstream auth.
- * - Plain Cloud Run IAM: service URL (BACKEND_BASE)
+ * - Plain Cloud Run IAM: service URL (BACKEND_BASE) — the current setup, so leave
+ *   BACKEND_ID_TOKEN_AUDIENCE unset.
  * - IAP in front of the API: IAP OAuth client ID (…apps.googleusercontent.com)
- * Logs showed "Invalid IAP credentials: Invalid JWT audience" when using the service URL.
+ * A mismatch here surfaces as a 401/403 from Google Frontend before the request
+ * ever reaches the app.
  */
 const ID_TOKEN_AUDIENCE = (process.env.BACKEND_ID_TOKEN_AUDIENCE || process.env.IAP_CLIENT_ID || BACKEND_BASE).trim();
 
@@ -167,13 +169,16 @@ exports.backend = onRequest(
                 error: 'Cloud Run rejected the proxy identity token',
                 status,
                 upstream: finalUrl,
-                hint:
-                  'Upstream is IAP-protected. Set BACKEND_ID_TOKEN_AUDIENCE to the IAP OAuth client ID, and grant roles/iap.httpsResourceAccessor to serviceAccount:883041866113-compute@developer.gserviceaccount.com in the API project.',
+                hint: `Upstream rejected the identity token. Check that the audience matches the upstream auth layer (plain Cloud Run IAM expects the service URL, IAP expects its OAuth client ID) and that this function's service account has roles/run.invoker on the service (plus roles/iap.httpsResourceAccessor if IAP is enabled).`,
                 audience: ID_TOKEN_AUDIENCE,
                 upstreamBody,
               });
             }
             return;
+          }
+
+          if (status >= 500) {
+            console.error('proxy upstream 5xx', status, finalUrl, body.toString('utf8').slice(0, 1000));
           }
 
           const outHeaders = { ...upstreamRes.headers };

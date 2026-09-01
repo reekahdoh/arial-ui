@@ -15,6 +15,7 @@ export function useRunningRiskAssessment(assessmentId: string) {
   const [status, setStatus] = useState('Starting…');
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState<string | null>(null);
+  const [options, setOptions] = useState<string[]>([]);
   const [answer, setAnswer] = useState('');
   const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
   const [progressPercent, setProgressPercent] = useState<number | null>(null);
@@ -23,7 +24,7 @@ export function useRunningRiskAssessment(assessmentId: string) {
   const [isAwaitingQuestion, setIsAwaitingQuestion] = useState(false);
   const [riskReport, setRiskReport] = useState<RiskReportPayload | null>(null);
   const [exchangeLog, setExchangeLog] = useState<AssessmentRiskExchangeLogEntry[]>([]);
-  const [, setAiStage] = useState<string | null>(null);
+  const [aiStage, setAiStage] = useState<string | null>(null);
   const [, setAiIdResponseLog] = useState<AiIdResponseLogEntry[]>([]);
 
   const flowSetters = useMemo<RunningFlowSetters>(
@@ -33,6 +34,7 @@ export function useRunningRiskAssessment(assessmentId: string) {
       setExchangeLog,
       setIsAwaitingQuestion,
       setIsComplete,
+      setOptions,
       setProgressPercent,
       setQuestion,
       setRiskReport,
@@ -83,12 +85,14 @@ export function useRunningRiskAssessment(assessmentId: string) {
     : null;
 
   return {
+    aiStage,
     answer,
     completionAction,
     error,
     exchangeLog,
     isComplete,
     isSubmittingAnswer,
+    options,
     progressPercent,
     question,
     showAnswerForm,

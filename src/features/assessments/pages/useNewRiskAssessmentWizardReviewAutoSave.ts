@@ -9,6 +9,8 @@ type ReviewAutoSaveParams = {
   companyName: string;
   domain: DomainKey | '';
   isSaving: boolean;
+  /** True when viewing an already-saved assessment; skips the entry auto-save. */
+  startedFromExisting: boolean;
   save: () => Promise<string | null>;
 };
 
@@ -20,9 +22,11 @@ export function useNewRiskAssessmentWizardReviewAutoSave({
   companyName,
   domain,
   isSaving,
+  startedFromExisting,
   save,
 }: ReviewAutoSaveParams) {
-  const autoSaveAttemptedRef = useRef(false);
+  // Treat an existing assessment as already-saved so opening it doesn't trigger a write.
+  const autoSaveAttemptedRef = useRef(startedFromExisting);
   useEffect(() => {
     if (step !== 'review') {
       autoSaveAttemptedRef.current = false;
@@ -34,9 +38,10 @@ export function useNewRiskAssessmentWizardReviewAutoSave({
       !autoSaveAttemptedRef.current;
     if (!readyToSave) return;
 
+    // Stays true even when the save fails: clearing it here would let the resulting
+    // re-render re-trigger this effect in an unbounded retry loop. The surfaced save
+    // error is the user's cue to retry, and leaving the review step resets the guard.
     autoSaveAttemptedRef.current = true;
-    void save().then((savedId) => {
-      if (!savedId) autoSaveAttemptedRef.current = false;
-    });
+    void save();
   }, [save, companyName, domain, isSaving, name, owner, riskOwner, step]);
 }

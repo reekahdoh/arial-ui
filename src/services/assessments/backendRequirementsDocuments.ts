@@ -7,7 +7,7 @@ import { getRiskAssessment } from './firestoreRiskAssessments';
 
 export type RequirementsFileRecord = {
   user_id: string;
-  assessment_id: string;
+  parent_id: string;
   filepath: string;
   doc_id: string;
   status: {
@@ -32,7 +32,7 @@ function isRequirementsFileRecord(value: unknown): value is RequirementsFileReco
   return (
     typeof record.doc_id === 'string' &&
     typeof record.filepath === 'string' &&
-    typeof record.assessment_id === 'string'
+    typeof record.parent_id === 'string'
   );
 }
 

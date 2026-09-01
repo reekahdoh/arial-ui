@@ -1,28 +1,12 @@
 import { useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { ProjectRequirementsFields } from '../../../domain/projectRequirements';
+import { isUsingFirebaseEmulators } from '../../../services/firebase';
+import { withTimeout } from '../../../utils/withTimeout';
 import { persistNewRiskAssessment } from './persistNewRiskAssessment';
 import type { DomainKey } from './newRiskAssessmentWizardTypes';
 
-const SAVE_TIMEOUT_MS = 15000;
-
-function promiseWithTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      reject(new Error(`${label} timed out. Check that the Firestore emulator is running (npm run emulators).`));
-    }, timeoutMs);
-    void promise.then(
-      (value) => {
-        window.clearTimeout(timer);
-        resolve(value);
-      },
-      (err: unknown) => {
-        window.clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
-}
+const SAVE_TIMEOUT_MS = isUsingFirebaseEmulators() ? 15_000 : 60_000;
 
 type WizardSaveState = {
   assessmentId: string;
@@ -55,7 +39,7 @@ export function useNewRiskAssessmentWizardActions(state: WizardSaveState) {
     state.setSaveError(null);
     state.setIsSaving(true);
     try {
-      const backendAssessmentId = await promiseWithTimeout(
+      const backendAssessmentId = await withTimeout(
         persistNewRiskAssessment({
           assessmentId: state.assessmentId,
           name: state.name,

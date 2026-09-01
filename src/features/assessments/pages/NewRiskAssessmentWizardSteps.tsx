@@ -127,6 +127,7 @@ function TextFieldWizardStep({
       onChange={config.onChange?.(fields)}
       readOnly={config.readOnly}
       nextButton={nextButton}
+      testId={`aira-wizard-${step}`}
     />
   );
 }

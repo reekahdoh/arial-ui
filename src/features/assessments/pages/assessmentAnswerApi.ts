@@ -5,12 +5,13 @@ export type AssessmentAnswerJson = {
   message?: string;
   question_id?: string;
   history?: { role: string; content: string }[];
-  chat_stage?: string;
+  assessment_stage?: string;
   turn_type?: string;
   complete?: boolean;
   progress?: unknown;
   progress_percentage?: unknown;
   percentage?: unknown;
+  options?: unknown;
 };
 
 export type AssessmentAnswerResult = {
@@ -106,4 +107,12 @@ export function resolveQuestionId(data: AssessmentAnswerJson | null | undefined)
 
 export function resolveChatId(data: AssessmentAnswerJson): string | null {
   return typeof data.chat_id === 'string' && data.chat_id.trim() !== '' ? data.chat_id.trim() : null;
+}
+
+export function resolveOptions(data: AssessmentAnswerJson | null | undefined): string[] {
+  const raw = data?.options;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((option) => (typeof option === 'string' ? option.trim() : ''))
+    .filter((option) => option !== '');
 }

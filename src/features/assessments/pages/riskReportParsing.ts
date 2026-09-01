@@ -95,14 +95,9 @@ export function reportDocumentFromAssessmentPayload(data: unknown, raw: string):
 }
 
 export function getReportDocument(report: RiskReportPayload): ReportDocument | null {
-  if (
-    isRecord(report.response) &&
-    ('name' in report.response ||
-      'risk_assessment' in report.response ||
-      'requirement_summary' in report.response ||
-      'requirementSummary' in report.response)
-  ) {
-    return report.response;
-  }
-  return parseRawReport(report.raw);
+  // Use the same nested-key unwrapping parser as the API path so the cached
+  // (router state / sessionStorage) render matches the fetched document. This
+  // avoids the first paint showing template fallbacks that then flash to the
+  // real values once the API request resolves.
+  return reportDocumentFromAssessmentPayload(report.response, report.raw);
 }

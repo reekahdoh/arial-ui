@@ -21,6 +21,20 @@ import {
   isCompletedAssessmentStatus,
   type AssessmentStatusState,
 } from './assessmentsListHelpers';
+import { domainKeyFromName } from './newRiskAssessmentWizardHelpers';
+import { WIZARD_PRELOAD_STATE_KEY, type WizardPreload } from './newRiskAssessmentWizardTypes';
+
+/** Snapshot passed via router state so the wizard's review step renders populated instantly. */
+function wizardPreloadFromRow(row: RiskAssessmentRead): WizardPreload {
+  return {
+    name: row.name,
+    owner: row.owner,
+    riskOwner: row.riskOwner,
+    companyName: row.companyName,
+    domainKey: row.domainKey ?? domainKeyFromName(row.domainName ?? '') ?? undefined,
+    customerContext: row.customerContext,
+  };
+}
 
 /** Hide table columns below `sm` — keeps the list readable on narrow viewports. */
 const hideBelowSm = { display: { xs: 'none', sm: 'table-cell' } } as const;
@@ -92,6 +106,7 @@ function AssessmentListRow({
             <Link
               component={RouterLink}
               to={`/assessments/new?assessmentId=${encodeURIComponent(assessmentId)}`}
+              state={{ [WIZARD_PRELOAD_STATE_KEY]: wizardPreloadFromRow(row) }}
               underline="hover"
               color="inherit"
               sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
@@ -170,7 +185,12 @@ export function AssessmentsListTable({
   onDelete: (row: RiskAssessmentRead) => void;
 }) {
   return (
-    <AppTable aria-label="Risk Assessments" tableProps={{ sx: { minWidth: { xs: 0, md: 720 } } }}>
+    <AppTable
+      square
+      aria-label="Risk Assessments"
+      data-testid="aira-assessments-table"
+      tableProps={{ sx: { minWidth: { xs: 0, md: 720 } } }}
+    >
       <TableHead>
         <TableRow>
           <TableCell>Title</TableCell>
